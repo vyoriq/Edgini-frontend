@@ -6,67 +6,64 @@ export default function AuthCallback() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const checkSessionAndProfile = async () => {
-      try {
-        const {
-          data: { session },
-        } = await supabase.auth.getSession();
+  const checkSessionAndProfile = async () => {
+    try {
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
 
-        if (!session) {
-          navigate('/auth');
-          return;
-        }
-
-        // ✅ Bypassing profile check — all users go to Learn
-        navigate('/learn');
-
-        // ⛔️ From here onwards is skipped due to descoped profile logic
-        /*
-        const userId = session.user.id;
-
-        const localProfile = localStorage.getItem('vyoriqUserProfile');
-        const isOnboarded = localStorage.getItem('isOnboarded') === 'true';
-
-        if (localProfile && isOnboarded) {
-          navigate('/learn');
-          return;
-        }
-
-        const { data: profile, error } = await supabase
-          .from('profiles')
-          .select('*')
-          .eq('id', userId)
-          .single();
-
-        if (error || !profile) {
-          console.error('Profile fetch error:', error);
-          navigate('/onboarding');
-          return;
-        }
-
-        const hasAllFields =
-          profile.grade &&
-          profile.learningGoals &&
-          profile.subjects &&
-          profile.accessType;
-
-        localStorage.setItem('vyoriqUserProfile', JSON.stringify(profile));
-        localStorage.setItem('isOnboarded', hasAllFields ? 'true' : 'false');
-
-        if (hasAllFields) {
-          navigate('/learn');
-        } else {
-          navigate('/onboarding');
-        }
-        */
-      } catch (err) {
-        console.error('AuthCallback error:', err);
+      if (!session) {
         navigate('/auth');
+        return;
       }
-    };
 
-    checkSessionAndProfile();
-  }, [navigate]);
+      const { user } = session;
+      const userId = user.id;
+
+      // Store type + email for onboarding fallback
+      localStorage.setItem('vyoriqUserType', 'provider');
+      localStorage.setItem('vyoriqUserEmail', user.email);
+
+      // 🔍 Check if user exists in user_profiles table
+      const { data: profile, error } = await supabase
+        .from('user_profiles')
+        .select('*')
+        .eq('user_id', userId)
+        .single();
+      
+
+      if (error || !profile) {
+        console.log('User profile not found. Redirecting to onboarding...');
+        navigate('/onboarding');
+      } else {
+
+        const camelCaseProfile = {
+          userId: profile.user_id,
+          fullName: profile.full_name,
+          email: profile.email,
+          dob: profile.dob,
+          gradeLevel: profile.grade_level,
+          subject: profile.subject,
+          goal: profile.goal,
+          accessType: profile.access_type,
+        };
+
+        // Optionally store profile in localStorage
+        localStorage.setItem('vyoriqUserProfile', JSON.stringify(camelCaseProfile));
+        
+        navigate('/learn');
+      }
+
+    } catch (err) {
+      console.error('AuthCallback error:', err);
+      navigate('/auth');
+    }
+  };
+
+  checkSessionAndProfile();
+}, [navigate]);
+
+
 
   return <p className="text-center mt-10">🔄 Finishing login... Please wait.</p>;
 }

@@ -1,6 +1,6 @@
 {
-  "name": "vyoriq-ui",
-  "version": "0.0.1",
+  "name": "edgini-ui",
+  "version": "0.0.3",
   "type": "module",
   "private": true,
   "scripts": {

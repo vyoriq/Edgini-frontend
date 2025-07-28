@@ -7,13 +7,13 @@
   "password": "Contraseña",
   "login": "Iniciar sesión",
   "register": "Registrarse",
-  "newUserPrompt": "¿Nuevo en Vyoriq?",
+  "newUserPrompt": "¿Nuevo en Edgini?",
   "registerHere": "Regístrate aquí",
   "alreadyHaveAccount": "¿Ya tienes una cuenta?",
   "loginHere": "Inicia sesión aquí",
   "loginFailed": "Inicio de sesión fallido",
   "signupFailed": "Registro fallido",
-  "onboardingHeading": "👋 ¡Bienvenido a Vyoriq!",
+  "onboardingHeading": "👋 ¡Bienvenido a Edgini!",
   "name": "Nombre completo",
   "emailOrMobile": "Correo electrónico o número de teléfono móvil",
   "password": "Contraseña",
@@ -29,5 +29,5 @@
   "continue": "Continuar",
   "educationTagline": "Educación para todos en todas partes",
   "futureTagline": "Construyamos el futuro hoy",
-    "startAsking": "Pregúntale a Vyoriq"
+  "startAsking": "Pregúntale a Edgini"
 }

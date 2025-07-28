@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { supabase } from '../lib/supabaseClient';
+import { useTranslation } from 'react-i18next';
 
 export default function LearnPage() {
   const [userProfile, setUserProfile] = useState(null);
@@ -11,6 +12,8 @@ export default function LearnPage() {
   const [loading, setLoading] = useState(false);
   const [language, setLanguage] = useState('en');
   const [username, setUsername] = useState('');
+  const [email, setEmail] = useState('');
+  const { t, i18n } = useTranslation();
 
   useEffect(() => {
     const profile = localStorage.getItem('vyoriqUserProfile');
@@ -22,17 +25,6 @@ export default function LearnPage() {
     const savedLang = localStorage.getItem('vyoriqLanguage') || 'en';
     setLanguage(savedLang);
   }, []);
-
-  const translations = {
-    en: {
-      placeholder: "Ask Vyoriq anything...",
-      send: "Send",
-      goalsTitle: "🎯 Goals",
-      subjectsTitle: "📚 Subjects",
-      thinking: "🧠 Vyoriq is thinking..."
-    }
-  };
-  const t = translations[language] || translations.en;
 
   const extractTopicFromQuery = (text) =>
     text.replace(/^(what is|define|explain|tell me about)\s+/i, '').split('?')[0].trim();
@@ -61,11 +53,9 @@ export default function LearnPage() {
       last_answer: stage.includes('validate') ? query : null
     };
 
-    console.log("📦 Sending to backend:", JSON.stringify(body, null, 2));
-
 
     try {
-      const response = await fetch('/curate', {
+      const response = await fetch('https://api.edgini.com/curate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(body),
@@ -118,32 +108,35 @@ const renderAIContent = (content) => (
 
   return (
     <div className="flex min-h-screen">
-      <aside className="w-64 bg-gray-100 p-4 border-r overflow-y-auto flex flex-col h-screen">
+      <aside className="w-64 bg-gray-100 p-4 border-r overflow-y-auto flex flex-col">
         <div>
           <div className="mb-4 flex justify-center">
-            <img src="assets/vyoriq-logo.png" alt="Vyoriq Logo" className="h-10 w-auto" />
+            <img src="assets/edgini-logo.png" alt="Edgini Logo" 
+            // className="h-10 w-auto" 
+            className="mx-auto h-14 my-4"
+            />
           </div>
-          <h3 className="font-bold text-lg mb-2">🎓 Grade/Level:</h3>
-          <p className="text-sm text-gray-700 mb-2">{userProfile?.gradeLevel || 'N/A'}</p>
-          <h3 className="font-bold text-lg mb-2">🎯 Goal:</h3>
-          <p className="text-sm text-gray-700 mb-2">{userProfile?.goal || 'N/A'}</p>
+          <h3 className="font-bold text-lg mb-2">🎓 {t('gradeLevel') || "Grade/Level:"} </h3>
+          <p className="text-sm text-gray-700 mb-2">{t(`grades.${userProfile?.gradeLevel}`) || 'N/A'}</p>
+          <h3 className="font-bold text-lg mb-2">🎯 {t('goal') || "Goal:"} </h3>
+          <p className="text-sm text-gray-700 mb-2">{t(userProfile?.goal) || 'N/A'}</p>
         </div>
         <div className="mt-auto text-center text-xs text-gray-500 pt-4">
-          <p>🌍 Education for Everyone, Everywhere</p>
-          <p>🚀 Let's Build Tomorrow, Today</p>
+          <p>🌍 {t('educationTagline') || "Education for Everyone, Everywhere"}</p>
+          <p>🚀 {t('futureTagline') || "Let's Build Tomorrow, Today"}</p>
         </div>
       </aside>
 
       <main className="flex-1 p-6 pt-16 flex flex-col bg-white relative">
         <div className="absolute top-4 right-6 text-lg text-gray-800 font-semibold">
-          {username && `👋 Hi, ${username}`}
+          🙏 {t('greeting')}, {username || email || t('learner')}
           <button onClick={async () => {
             await supabase.auth.signOut();
             localStorage.clear();
             window.location.href = '/auth';
           }}
             className="ml-4 text-sm bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600">
-            Logout
+            {t('logout') || "Logout"}
           </button>
         </div>
 
@@ -153,16 +146,17 @@ const renderAIContent = (content) => (
               {msg.type === 'ai' ? renderAIContent(msg.content) : msg.content}
             </div>
           ))}
-          {loading && <div className="text-sm text-gray-500">{t.thinking}</div>}
+          {loading && <div className="text-sm text-gray-500">🧠 {t("edginiThinking")}</div>}
         </div>
 
         <form onSubmit={handleSubmit} className="flex items-center gap-2">
-          <input type="text" value={query} onChange={(e) => setQuery(e.target.value)} placeholder={t.placeholder}
+          <input type="text" value={query} onChange={(e) => setQuery(e.target.value)} placeholder={t("askEdgini") || "Ask Edgini anything..."}
             className="flex-1 p-2 border rounded shadow font-semibold text-blue-900 placeholder-blue-900" required />
-          <button type="submit" className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">{t.send}</button>
+          <button type="submit" className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">{t("send") || "Send"}</button>
         </form>
       </main>
     </div>
+    
   );
 }
 

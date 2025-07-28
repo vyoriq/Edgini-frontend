@@ -2,6 +2,8 @@ import { useNavigate } from 'react-router-dom';
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { supabase } from '../lib/supabaseClient'; // adjust if needed
+import { FcGoogle } from 'react-icons/fc';
+import { FaFacebook } from 'react-icons/fa';
 
 export default function AuthPage() {
   const navigate = useNavigate();
@@ -12,6 +14,11 @@ export default function AuthPage() {
   useEffect(() => {
     localStorage.setItem('isOnboarded', 'false');
   }, []);
+
+  useEffect(() => {
+      const savedLang = localStorage.getItem("vyoriqLanguage") || "en";
+      i18n.changeLanguage(savedLang);
+    }, [i18n]);
 
   const handleGoogleLogin = async () => {
     const redirectUrl = `${window.location.origin}/auth/callback`; // resolves to http://localhost:5173 if you're on dev
@@ -112,46 +119,34 @@ export default function AuthPage() {
   return (
     <div className="min-h-screen bg-gradient-to-r from-blue-500 to-blue-600 flex items-center justify-center p-4">
       <div className="bg-white p-6 rounded-lg shadow-md w-full max-w-sm text-center">
-        <div className="flex justify-between items-start">
-          <div></div>
-          <select
-            value={i18n.language}
-            onChange={(e) => i18n.changeLanguage(e.target.value)}
-            className="text-sm border rounded px-2 py-1"
-          >
-            <option value="en">English</option>
-            <option value="hi">हिंदी</option>
-            <option value="bn">বাংলা</option>
-            <option value="kn">ಕನ್ನಡ</option>
-            <option value="es">Español</option>
-            <option value="ar">عربي</option>
-          </select>
-        </div>
 
-        <img src="/assets/vyoriq-logo.png" alt="Vyoriq Logo" className="mx-auto h-20 my-4" />
-        <h2 className="text-2xl font-bold mb-4">{t('signInHeading') || 'Learn with Vyoriq'}</h2>
+        <img src="/assets/edgini-logo.png" alt="Edgini Logo" className="mx-auto h-20 my-4" />
+        <h2 className="text-2xl font-bold mb-4">{t('signInHeading') || 'Learn with Edgini'}</h2>
 
-        <button
-          onClick={handleGoogleLogin}
-          className="bg-red-500 hover:bg-red-600 text-white font-medium py-2 rounded w-full mb-4"
-        >
-          {t('continueWithGoogle') || 'Continue with Google'}
-        </button>
-        <button
-          onClick={handleFacebookLogin}
-          className="bg-red-500 hover:bg-red-600 text-white font-medium py-2 rounded w-full mb-4"
-        >
-          {t('continueWithFacebook') || 'Continue with Facebook'}
-        </button>
+          <button
+            onClick={handleGoogleLogin}
+            className="flex items-center justify-center gap-2 bg-gradient-to-r from-gray-100 to-gray-200 hover:from-gray-200 hover:to-gray-300 text-gray-800 font-medium py-2 rounded-full w-full transition-all duration-200 shadow-sm mb-2"
+            >
+            <FcGoogle className="text-xl" />
+            {t('continueWithGoogle') || 'Continue with Google'}
+          </button>
+
+          <button
+            onClick={handleFacebookLogin}
+            className="flex items-center justify-center gap-2 bg-gradient-to-r from-blue-100 to-blue-200 hover:from-blue-200 hover:to-blue-300 text-[#1877F2] font-medium py-2 rounded-full w-full transition-all duration-200 shadow-sm"
+            >
+            <FaFacebook className="text-xl text-blue-600" />
+            {t('continueWithFacebook') || 'Continue with Facebook'}
+          </button>
+
       <input
       type="text"
       value={identifier}
       onChange={(e) => setIdentifier(e.target.value)}
-      placeholder="Email or mobile"
+      placeholder={t('emailOrMobile') || "Email or mobile"}
       required
-      className="w-full border px-3 py-2 rounded text-sm"
+      className="w-full border px-3 py-2 rounded text-sm mt-4"
       />
-
 
         <input
           type="password"
@@ -159,24 +154,27 @@ export default function AuthPage() {
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           required
-          className="w-full border px-3 py-2 rounded text-sm"
+          className="w-full border px-3 py-2 rounded text-sm mb-1"
         />
         <button
           onClick={handleManualLogin}
-          className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 rounded w-full"
+          className="w-full py-2 rounded-full font-semibold text-white bg-gradient-to-r from-blue-500 to-blue-700 hover:from-blue-600 hover:to-blue-800 transition-all duration-200 shadow"
+
         >
           {t('login') || 'Login'}
         </button>
 
         <p className="text-sm mt-4">
-          {t('newUserPrompt') || 'New to Vyoriq?'}{' '}
+          {t('newUserPrompt') || 'New to Edgini?'}{' '}
           <button onClick={handleManualRegister} className="text-blue-600 underline">
             {t('registerHere') || 'Register here'}
           </button>
         </p>
 
-<p className="text-xs mt-3">🌍 Education for Everyone, Everywhere</p>
-<p className="text-xs mt-1">🚀 Let's Build Tomorrow, Today</p>
+        
+
+<p className="text-xs mt-3">🌍{t('educationTagline') || 'Education for Everyone, Everywhere'}</p>
+<p className="text-xs mt-1">🚀 {t('futureTagline') || "Let's Build Tomorrow, Today"}</p>
 
       </div>
     </div>

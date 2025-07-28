@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 
 export default function Homepage() {
   const [locale, setLocale] = useState('en');
-  const [greeting, setGreeting] = useState('Welcome to Vyoriq');
+  const [greeting, setGreeting] = useState('Welcome to Edgini');
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -13,13 +13,13 @@ export default function Homepage() {
     localStorage.setItem("vyoriqLanguage", langCode);
 
     const greetings = {
-      en: 'Welcome to Vyoriq',
-      hi: 'वायोरिक में आपका स्वागत है',
-      bn: 'ভায়োরিকে স্বাগতম',
-      ar: 'مرحبًا بك في Vyoriq',
-      es: 'Bienvenido a Vyoriq',
-      kn: 'ವಯೋರಿಕ್‌ಗೆ ಸ್ವಾಗತ'
-    };
+    en: 'Welcome to Edgini',
+    hi: 'एडजिनी में आपका स्वागत है',
+    bn: 'এডজিনিতে স্বাগতম',
+    ar: 'مرحبًا بك في Edgini',
+    es: 'Bienvenido a Edgini',
+    kn: 'ಎಡ್ಜಿನಿಗೆ ಸ್ವಾಗತ'
+  };
 
     setGreeting(greetings[langCode] || greetings['en']);
   }, []);
@@ -30,13 +30,13 @@ export default function Homepage() {
     localStorage.setItem("vyoriqLanguage", langCode);
 
     const greetings = {
-      en: 'Welcome to Vyoriq',
-      hi: 'वायोरिक में आपका स्वागत है',
-      bn: 'ভায়োরিকে স্বাগতম',
-      ar: 'مرحبًا بك في Vyoriq',
-      es: 'Bienvenido a Vyoriq',
-      kn: 'ವಯೋರಿಕ್‌ಗೆ ಸ್ವಾಗತ'
-    };
+    en: 'Welcome to Edgini',
+    hi: 'एडजिनी में आपका स्वागत है',
+    bn: 'এডজিনিতে স্বাগতম',
+    ar: 'مرحبًا بك في Edgini',
+    es: 'Bienvenido a Edgini',
+    kn: 'ಎಡ್ಜಿನಿಗೆ ಸ್ವಾಗತ'
+  };
 
     setGreeting(greetings[langCode] || greetings['en']);
   };
@@ -95,8 +95,8 @@ const translations = {
       </div>
 
       <img
-        src="/assets/vyoriq-logo.png"
-        alt="Vyoriq Logo"
+        src="/assets/edgini-logo.png"
+        alt="Edgini Logo"
         className="h-24 w-auto mb-4"
       />
 
