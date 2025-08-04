@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { supabase } from '../lib/supabaseClient';
+import { useNavigate } from "react-router-dom";
 import { useTranslation } from 'react-i18next';
 
 export default function LearnPage() {
@@ -9,11 +10,13 @@ export default function LearnPage() {
   const [chatHistory, setChatHistory] = useState([]); // 🔁 for GPT context
   const [stage, setStage] = useState('explain');       // 👣 AI flow stage
   const [lastAnswer, setLastAnswer] = useState(null);  // 🧠 last user answer
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [language, setLanguage] = useState('en');
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const { t, i18n } = useTranslation();
+  const navigate = useNavigate();
+
 
   useEffect(() => {
     const profile = localStorage.getItem('vyoriqUserProfile');
@@ -37,10 +40,11 @@ export default function LearnPage() {
     setMessages((prev) => [...prev, { type: 'user', content: query }]);
     setChatHistory((prev) => [...prev, userMsg]);
     setQuery('');
-    setLoading(true);
+    // setLoading(true);
 
 
     let body = {
+      user_id: userProfile.userId,
       topic: extractTopicFromQuery(query),
       class_level: userProfile.gradeLevel,
       proficiency_level: 'beginner',
@@ -55,7 +59,7 @@ export default function LearnPage() {
 
 
     try {
-      const response = await fetch('https://api.edgini.com/curate', {
+      const response = await fetch('http://localhost:8000/curate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(body),
@@ -105,6 +109,65 @@ const renderAIContent = (content) => (
       )}
     </div>
   );
+
+  useEffect(() => {
+    const checkSubscription = async () => {
+      const { data: user } = await supabase.auth.getUser();
+      if (!user?.user) {
+        navigate("/auth");
+        return;
+      }
+
+      const userId = user.user.id;
+
+      // Fetch subscription
+      const { data: subscription, error } = await supabase
+        .from("subscriptions")
+        .select("*")
+        .eq("user_id", userId)
+        .eq("is_active", true)
+        .single();
+
+      if (error || !subscription) {
+        navigate("/subscription");
+        return;
+      }
+
+      // Optional: Check daily limit
+      const { data: profile } = await supabase
+        .from("user_profiles")
+        .select("daily_query_count, last_query_date")
+        .eq("user_id", userId)
+        .single();
+
+       console.log(profile?.daily_query_count)
+       console.log(profile.last_query_date)
+
+      const today = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
+
+      if (profile?.last_query_date !== today) {
+        // reset logic in backend or here if needed
+      } else {
+        const limits = {
+          free: 3,
+          basic: 10,
+          premium: 100,
+        };
+
+        const limit = limits[subscription.plan || "free"];
+        if (profile?.daily_query_count >= limit) {
+          navigate("/subscription");
+          return;
+        }
+      }
+
+      setLoading(false); // Allow page to load
+    };
+
+    checkSubscription();
+  }, [navigate]);
+
+  if (loading) return <div className="p-4">Checking your subscription...</div>;
 
   return (
     <div className="flex min-h-screen">
