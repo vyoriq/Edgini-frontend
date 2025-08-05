@@ -15,6 +15,8 @@ export default function LearnPage() {
   const [email, setEmail] = useState('');
   const { t, i18n } = useTranslation();
 
+  const isRTL = language === 'ar';
+
   useEffect(() => {
     const profile = localStorage.getItem('vyoriqUserProfile');
     if (profile) {
@@ -78,13 +80,52 @@ export default function LearnPage() {
     }
   };
 
-const renderAIContent = (content) => (
-    <div className="space-y-2 p-4 text-white">
+// const renderAIContent = (content) => (
+//     <div className="space-y-2 p-4 text-white">
+//       {content.text && (
+//         <p className="whitespace-pre-wrap"
+//            dangerouslySetInnerHTML={{
+//              __html: content.text.replace(/\*\*(.*?)\*\*/g, '<strong class="text-yellow-300 font-semibold">$1</strong>')
+//            }} />
+//       )}
+//       {content.voice_url && (
+//         <audio controls className="mt-2">
+//           <source src={content.voice_url} type="audio/mpeg" />
+//         </audio>
+//       )}
+//       {!content.voice_url && content.notes?.voice && (
+//         <p className="text-xs italic text-yellow-200 mt-1">{content.notes.voice}</p>
+//       )}
+//       {content.image_url && (
+//         <img src={content.image_url} alt="Related visual" className="mt-4 rounded-md shadow" />
+//       )}
+//       {!content.image_url && content.notes?.image && (
+//         <p className="text-xs italic text-yellow-200 mt-1">{content.notes.image}</p>
+//       )}
+//       {content.notes?.video && (
+//         <p className="text-xs italic text-yellow-200 mt-1">{content.notes.video}</p>
+//       )}
+//     </div>
+//   );
+
+
+  const renderAIContent = (content) => {
+
+  return (
+    <div
+      className={`space-y-2 p-4 text-white ${isRTL ? 'text-right' : 'text-left'}`}
+      dir={isRTL ? 'rtl' : 'ltr'}
+    >
       {content.text && (
-        <p className="whitespace-pre-wrap"
-           dangerouslySetInnerHTML={{
-             __html: content.text.replace(/\*\*(.*?)\*\*/g, '<strong class="text-yellow-300 font-semibold">$1</strong>')
-           }} />
+        <p
+          className="whitespace-pre-wrap"
+          dangerouslySetInnerHTML={{
+            __html: content.text.replace(
+              /\*\*(.*?)\*\*/g,
+              '<strong class="text-yellow-300 font-semibold">$1</strong>'
+            )
+          }}
+        />
       )}
       {content.voice_url && (
         <audio controls className="mt-2">
@@ -105,6 +146,8 @@ const renderAIContent = (content) => (
       )}
     </div>
   );
+};
+
 
   return (
     <div className="flex min-h-screen">
@@ -140,20 +183,64 @@ const renderAIContent = (content) => (
           </button>
         </div>
 
-        <div className="flex-1 overflow-y-auto space-y-4 mb-4">
+        {/* <div className="flex-1 overflow-y-auto space-y-4 mb-4">
           {messages.map((msg, idx) => (
             <div key={idx} className={`p-3 rounded shadow-md mb-2 ${msg.type === 'user' ? 'bg-blue-100 text-right' : 'bg-[#0a2b75] text-white text-left'}`}>
               {msg.type === 'ai' ? renderAIContent(msg.content) : msg.content}
             </div>
           ))}
           {loading && <div className="text-sm text-gray-500">🧠 {t("edginiThinking")}</div>}
+        </div> */}
+        <div className={`flex-1 overflow-y-auto space-y-4 mb-4`} dir={isRTL ? 'rtl' : 'ltr'}>
+          {messages.map((msg, idx) => (
+            <div
+              key={idx}
+              className={`
+                p-3 rounded shadow-md mb-2 
+                ${msg.type === 'user'
+                  ? 'bg-blue-100 text-right'
+                  : `${isRTL ? 'bg-[#0a2b75] text-right' : 'bg-[#0a2b75] text-left'}`
+                }
+              `}
+            >
+              {msg.type === 'ai' ? renderAIContent(msg.content) : msg.content}
+            </div>
+          ))}
+          {loading && (
+            <div className={`text-sm text-gray-500 ${isRTL ? 'text-right' : 'text-left'}`}>
+              🧠 {t("edginiThinking")}
+            </div>
+          )}
         </div>
 
-        <form onSubmit={handleSubmit} className="flex items-center gap-2">
+
+
+        {/* <form onSubmit={handleSubmit} className="flex items-center gap-2">
           <input type="text" value={query} onChange={(e) => setQuery(e.target.value)} placeholder={t("askEdgini") || "Ask Edgini anything..."}
             className="flex-1 p-2 border rounded shadow font-semibold text-blue-900 placeholder-blue-900" required />
           <button type="submit" className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">{t("send") || "Send"}</button>
+        </form> */}
+        <form
+          onSubmit={handleSubmit}
+          className={`flex items-center gap-2 ${isRTL ? 'flex-row-reverse' : ''}`}
+          dir={isRTL ? 'rtl' : 'ltr'}
+          >
+          <input
+            type="text"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder={t("askEdgini") || "Ask Edgini anything..."}
+            className={`flex-1 p-2 border rounded shadow font-semibold placeholder-blue-900 text-blue-900 ${isRTL ? 'text-right' : 'text-left'}`}
+            required
+          />
+          <button
+            type="submit"
+            className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+          >
+            {t("send") || "Send"}
+          </button>
         </form>
+
       </main>
     </div>
     
