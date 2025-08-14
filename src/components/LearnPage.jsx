@@ -14,6 +14,9 @@ export default function LearnPage() {
   const [language, setLanguage] = useState('en');
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
+  const [subscriptionDetails, setSubscriptionDetails] = useState(null);
+  const [queryUsage, setQueryUsage] = useState({ current: 0, limit: 0 });
+  const [showUpgradePopup, setShowUpgradePopup] = useState(false);
   const { t, i18n } = useTranslation();
   const navigate = useNavigate();
 
@@ -27,10 +30,57 @@ export default function LearnPage() {
     }
     const savedLang = localStorage.getItem('vyoriqLanguage') || 'en';
     setLanguage(savedLang);
+
+    // Fetch subscription details to get daily limit
+    fetchSubscriptionDetails();
   }, []);
+
+  // Debug queryUsage changes
+  useEffect(() => {
+    console.log('Query usage state updated:', queryUsage);
+  }, [queryUsage]);
 
   const extractTopicFromQuery = (text) =>
     text.replace(/^(what is|define|explain|tell me about)\s+/i, '').split('?')[0].trim();
+
+  /**
+   * Fetches user subscription details from backend API
+   * Handles authentication and error cases securely
+   */
+  const fetchSubscriptionDetails = async () => {
+    try {
+      const { data: user } = await supabase.auth.getUser();
+      if (!user?.user) {
+        navigate("/auth");
+        return null;
+      }
+
+      // Call backend subscription_details API with user_id parameter
+      const response = await fetch(`http://localhost:8000/subscription_details?user_id=${user.user.id}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (!response.ok) {
+        throw new Error(`Subscription API error: ${response.status}`);
+      }
+
+      const data = await response.json();
+      setSubscriptionDetails(data);
+      setQueryUsage(prev => ({
+        current: prev.current, // Keep current usage from curate API
+        limit: data.daily_limit || 0 // Set limit from subscription_details API
+      }));
+      console.log('Subscription details loaded. Daily limit:', data.daily_limit);
+      return data;
+    } catch (error) {
+      console.error('Error fetching subscription details:', error);
+      // Fallback to local subscription check if API fails
+      return null;
+    }
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -65,8 +115,29 @@ export default function LearnPage() {
         body: JSON.stringify(body),
       });
 
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        
+        // Handle specific "Daily query limit reached" exception
+        if (errorData.detail && errorData.detail.includes('Daily query limit reached')) {
+          setShowUpgradePopup(true);
+          return;
+        }
+        
+        throw new Error(`API Error: ${response.status} ${errorData.detail || response.statusText}`);
+      }
+
       const data = await response.json();
       const aiReply = data.content.text;
+
+      // Update current query usage from curate API response
+      if (data.current !== undefined) {
+        setQueryUsage(prev => ({
+          current: data.current, // Current usage from /curate endpoint
+          limit: prev.limit // Keep limit from subscription_details API
+        }));
+        console.log('Updated current usage to:', data.current);
+      }
 
       setMessages((prev) => [...prev, { type: 'ai', content: data.content }]);
       setChatHistory((prev) => [...prev, { role: 'assistant', content: aiReply }]);
@@ -76,10 +147,115 @@ export default function LearnPage() {
       if (!data.next_stage?.includes('validate')) setLastAnswer(null);
     } catch (err) {
       console.error('Fetch error:', err);
-      setMessages((prev) => [...prev, { type: 'ai', content: { text: '⚠️ Error fetching response' } }]);
+      
+      // Handle specific exception message
+      if (err.message && err.message.includes('Daily query limit reached')) {
+        setShowUpgradePopup(true);
+      } else {
+        setMessages((prev) => [...prev, { type: 'ai', content: { text: '⚠️ Error fetching response. Please try again.' } }]);
+      }
     } finally {
       setLoading(false);
     }
+  };
+
+  /**
+   * Renders query usage display component with progress bar
+   * Shows current usage vs daily limit
+   */
+  const renderQueryUsage = () => {
+    if (!subscriptionDetails) return null;
+
+    const { current, limit } = queryUsage;
+    const isUnlimited = subscriptionDetails.plan === 'pro' || limit === -1;
+    const percentage = isUnlimited ? 0 : Math.min((current / limit) * 100, 100);
+    
+    return (
+      <div className="bg-white p-3 rounded-lg shadow-sm border">
+        <h4 className="font-semibold text-sm text-gray-700 mb-2">
+          📊 Query Usage Today
+        </h4>
+        
+        {isUnlimited ? (
+          <div className="text-center">
+            <p className="text-green-600 font-medium">Unlimited Queries</p>
+            <p className="text-xs text-gray-500">Pro Plan</p>
+          </div>
+        ) : (
+          <>
+            <div className="flex justify-between items-center mb-1">
+              <span className="text-xs text-gray-600">{current}</span>
+              <span className="text-xs text-gray-600">{limit}</span>
+            </div>
+            
+            <div className="w-full bg-gray-200 rounded-full h-2 mb-2">
+              <div 
+                className={`h-2 rounded-full transition-all duration-300 ${
+                  percentage >= 90 ? 'bg-red-500' : 
+                  percentage >= 70 ? 'bg-yellow-500' : 'bg-green-500'
+                }`}
+                style={{ width: `${percentage}%` }}
+              ></div>
+            </div>
+            
+            <p className="text-xs text-center text-gray-600">
+              {limit - current} queries remaining
+            </p>
+          </>
+        )}
+      </div>
+    );
+  };
+
+  /**
+   * Renders upgrade popup modal when query limit is reached
+   * Provides options to upgrade or continue with current plan
+   */
+  const renderUpgradePopup = () => {
+    if (!showUpgradePopup) return null;
+
+    return (
+      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div className="bg-white p-6 rounded-lg shadow-xl max-w-md w-mx-auto m-4">
+          <div className="text-center">
+            <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-yellow-100 mb-4">
+              <span className="text-2xl">⚠️</span>
+            </div>
+            
+            <h3 className="text-lg font-medium text-gray-900 mb-2">
+              Daily Query Limit Reached
+            </h3>
+            
+            <p className="text-sm text-gray-600 mb-6">
+              You've reached your daily query limit. Upgrade your plan to continue learning with Edgini.
+            </p>
+            
+            <div className="flex flex-col sm:flex-row gap-3">
+              <button
+                onClick={() => {
+                  setShowUpgradePopup(false);
+                  navigate('/subscription');
+                }}
+                className="flex-1 bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors font-medium"
+              >
+                Upgrade Plan
+              </button>
+              
+              <button
+                onClick={() => setShowUpgradePopup(false)}
+                className="flex-1 bg-gray-200 text-gray-800 px-4 py-2 rounded-md hover:bg-gray-300 transition-colors font-medium"
+              >
+                Stay on Current Plan
+              </button>
+            </div>
+            
+            <p className="text-xs text-gray-500 mt-3">
+              Your queries will reset tomorrow
+            </p>
+          </div>
+        </div>
+      </div>
+    );
   };
 
 const renderAIContent = (content) => (
@@ -118,50 +294,31 @@ const renderAIContent = (content) => (
         return;
       }
 
-      const userId = user.user.id;
+      try {
+        // Fetch subscription details from backend API
+        const subscriptionData = await fetchSubscriptionDetails();
+        
+        if (!subscriptionData) {
+          // Fallback to local Supabase check if API fails
+          const userId = user.user.id;
+          const { data: subscription, error } = await supabase
+            .from("subscriptions")
+            .select("*")
+            .eq("user_id", userId)
+            .eq("is_active", true)
+            .single();
 
-      // Fetch subscription
-      const { data: subscription, error } = await supabase
-        .from("subscriptions")
-        .select("*")
-        .eq("user_id", userId)
-        .eq("is_active", true)
-        .single();
-
-      if (error || !subscription) {
-        navigate("/subscription");
-        return;
-      }
-
-      // Optional: Check daily limit
-      const { data: profile } = await supabase
-        .from("user_profiles")
-        .select("daily_query_count, last_query_date")
-        .eq("user_id", userId)
-        .single();
-
-       console.log(profile?.daily_query_count)
-       console.log(profile.last_query_date)
-
-      const today = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
-
-      if (profile?.last_query_date !== today) {
-        // reset logic in backend or here if needed
-      } else {
-        const limits = {
-          free: 3,
-          basic: 10,
-          premium: 100,
-        };
-
-        const limit = limits[subscription.plan || "free"];
-        if (profile?.daily_query_count >= limit) {
-          navigate("/subscription");
-          return;
+          if (error || !subscription) {
+            navigate("/subscription");
+            return;
+          }
         }
-      }
 
-      setLoading(false); // Allow page to load
+        setLoading(false);
+      } catch (error) {
+        console.error('Error checking subscription:', error);
+        navigate("/subscription");
+      }
     };
 
     checkSubscription();
@@ -182,7 +339,10 @@ const renderAIContent = (content) => (
           <h3 className="font-bold text-lg mb-2">🎓 {t('gradeLevel') || "Grade/Level:"} </h3>
           <p className="text-sm text-gray-700 mb-2">{t(`grades.${userProfile?.gradeLevel}`) || 'N/A'}</p>
           <h3 className="font-bold text-lg mb-2">🎯 {t('goal') || "Goal:"} </h3>
-          <p className="text-sm text-gray-700 mb-2">{t(userProfile?.goal) || 'N/A'}</p>
+          <p className="text-sm text-gray-700 mb-4">{t(userProfile?.goal) || 'N/A'}</p>
+          
+          {/* Query Usage Display */}
+          {renderQueryUsage()}
         </div>
         <div className="mt-auto text-center text-xs text-gray-500 pt-4">
           <p>🌍 {t('educationTagline') || "Education for Everyone, Everywhere"}</p>
@@ -218,6 +378,9 @@ const renderAIContent = (content) => (
           <button type="submit" className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">{t("send") || "Send"}</button>
         </form>
       </main>
+      
+      {/* Upgrade Popup Modal */}
+      {renderUpgradePopup()}
     </div>
     
   );
