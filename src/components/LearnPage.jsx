@@ -70,7 +70,7 @@ export default function LearnPage() {
       const data = await response.json();
       setSubscriptionDetails(data);
       setQueryUsage(prev => ({
-        current: prev.current, // Keep current usage from curate API
+        current: prev.current || data.current , // Keep current usage from curate API
         limit: data.daily_limit || 0 // Set limit from subscription_details API
       }));
       console.log('Subscription details loaded. Daily limit:', data.daily_limit);
@@ -171,9 +171,9 @@ export default function LearnPage() {
     const percentage = isUnlimited ? 0 : Math.min((current / limit) * 100, 100);
     
     return (
-      <div className="bg-white p-3 rounded-lg shadow-sm border">
-        <h4 className="font-semibold text-sm text-gray-700 mb-2">
-          📊 Query Usage Today
+      <div className="bg-gray-100">
+        <h4 className="font-bold text-lg mb-2">
+          📊 Query Usage
         </h4>
         
         {isUnlimited ? (
