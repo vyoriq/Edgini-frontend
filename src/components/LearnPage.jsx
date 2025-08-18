@@ -17,23 +17,25 @@ export default function LearnPage() {
   const [subscriptionDetails, setSubscriptionDetails] = useState(null);
   const [queryUsage, setQueryUsage] = useState({ current: 0, limit: 0 });
   const [showUpgradePopup, setShowUpgradePopup] = useState(false);
+  const [subscriptionFetched, setSubscriptionFetched] = useState(false); // Prevent duplicate API calls
   const { t, i18n } = useTranslation();
   const navigate = useNavigate();
 
 
   useEffect(() => {
     const profile = localStorage.getItem('vyoriqUserProfile');
-    if (profile) {
+    if (profile && !subscriptionFetched) {
       const parsed = JSON.parse(profile);
       setUserProfile(parsed);
       setUsername(parsed.name || parsed.fullName || parsed.user_metadata?.name || '');
+      
+      // Only fetch subscription details once
+      setSubscriptionFetched(true);
+      fetchSubscriptionDetails();
     }
     const savedLang = localStorage.getItem('vyoriqLanguage') || 'en';
     setLanguage(savedLang);
-
-    // Fetch subscription details to get daily limit
-    fetchSubscriptionDetails();
-  }, []);
+  }, [subscriptionFetched]);
 
   // Debug queryUsage changes
   useEffect(() => {
@@ -49,14 +51,18 @@ export default function LearnPage() {
    */
   const fetchSubscriptionDetails = async () => {
     try {
-      const { data: user } = await supabase.auth.getUser();
-      if (!user?.user) {
+      // Get user_id from localStorage instead of making API call
+      const profile = localStorage.getItem('vyoriqUserProfile');
+      if (!profile) {
         navigate("/auth");
         return null;
       }
+      
+      const userProfile = JSON.parse(profile);
+      const userId = userProfile.userId;
 
       // Call backend subscription_details API with user_id parameter
-      const response = await fetch(`http://localhost:8000/subscription_details?user_id=${user.user.id}`, {
+      const response = await fetch(`http://localhost:8000/subscription_details?user_id=${userId}`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json'
@@ -287,42 +293,8 @@ const renderAIContent = (content) => (
   );
 
   useEffect(() => {
-    const checkSubscription = async () => {
-      const { data: user } = await supabase.auth.getUser();
-      if (!user?.user) {
-        navigate("/auth");
-        return;
-      }
-
-      try {
-        // Fetch subscription details from backend API
-        const subscriptionData = await fetchSubscriptionDetails();
-        
-        if (!subscriptionData) {
-          // Fallback to local Supabase check if API fails
-          const userId = user.user.id;
-          const { data: subscription, error } = await supabase
-            .from("subscriptions")
-            .select("*")
-            .eq("user_id", userId)
-            .eq("is_active", true)
-            .single();
-
-          if (error || !subscription) {
-            navigate("/subscription");
-            return;
-          }
-        }
-
-        setLoading(false);
-      } catch (error) {
-        console.error('Error checking subscription:', error);
-        navigate("/subscription");
-      }
-    };
-
-    checkSubscription();
-  }, [navigate]);
+    setLoading(false);
+  }, []);
 
   if (loading) return <div className="p-4">Checking your subscription...</div>;
 
