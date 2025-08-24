@@ -126,6 +126,48 @@ export default function OnboardingPage() {
       return;
     }
 
+    // ✅ Create subscription record after successful profile creation
+    const startDate = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
+    const endDate = new Date();
+    endDate.setMonth(endDate.getMonth() + 1);
+    const formattedEndDate = endDate.toISOString().split('T')[0];
+
+    const subscriptionPayload = {
+      user_id: user.id,
+      tier: 'free',
+      status: 'active',
+      start_date: startDate,
+      end_date: formattedEndDate,
+      is_active: true,
+      payment_provider: null,
+      external_ref: null,
+      daily_limit: 10
+    };
+
+    const { error: subscriptionError } = await supabase
+      .from('subscriptions')
+      .insert([subscriptionPayload]);
+
+    if (subscriptionError) {
+      // Rollback profile creation if subscription fails
+      await supabase
+        .from('user_profiles')
+        .delete()
+        .eq('user_id', user.id);
+
+      if (userType === 'manual') {
+        // Also rollback auth user for manual signup
+        await fetch('/api/rollback-user', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ userId: user.id }),
+        });
+      }
+
+      alert('Subscription creation failed. Account rolled back.');
+      return;
+    }
+
     const camelCaseProfile = {
       userId: profileData.user_id,
       fullName: profileData.full_name,
@@ -144,12 +186,18 @@ export default function OnboardingPage() {
     console.error('Unexpected error:', err);
     alert('Unexpected error occurred during registration.');
 
-    if (userType === 'manual' && user?.id) {
-      await fetch('/api/rollback-user', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userId: user.id }),
-      });
+    if (user?.id) {
+      // Cleanup subscription and profile if they were created
+      await supabase.from('subscriptions').delete().eq('user_id', user.id);
+      await supabase.from('user_profiles').delete().eq('user_id', user.id);
+
+      if (userType === 'manual') {
+        await fetch('/api/rollback-user', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ userId: user.id }),
+        });
+      }
     }
   }
 };
