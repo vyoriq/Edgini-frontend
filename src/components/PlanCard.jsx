@@ -1,19 +1,34 @@
 import React, { useState } from "react";
+import { 
+  createRazorpayOrder, 
+  initializeRazorpayPayment, 
+  verifyPaymentAndCreateSubscription,
+  validateUserInfo,
+  generateExternalRef
+} from '../services/razorpay';
 
 export default function PlanCard({ plan, isCurrent }) {
   const [isSubscribing, setIsSubscribing] = useState(false);
+  const [paymentStatus, setPaymentStatus] = useState('');
 
   /**
-   * Creates subscription using backend API
-   * Maps plan data to API format and handles subscription creation
+   * Handles payment flow with Razorpay integration
+   * Creates order, processes payment, and creates subscription
    */
   const handleSubscribe = async () => {
     if (isCurrent || isSubscribing) return;
 
+    // Skip payment for free plan
+    if (plan.tierKey === 'free' || plan.price === 0) {
+      await handleFreeSubscription();
+      return;
+    }
+
     try {
       setIsSubscribing(true);
+      setPaymentStatus('Preparing payment...');
       
-      // Get user profile from localStorage
+      // Get and validate user profile
       const profile = localStorage.getItem('vyoriqUserProfile');
       if (!profile) {
         alert('Please login first to subscribe');
@@ -21,40 +36,75 @@ export default function PlanCard({ plan, isCurrent }) {
       }
       
       const userProfile = JSON.parse(profile);
+      if (!validateUserInfo(userProfile)) {
+        alert('Invalid user information. Please login again.');
+        return;
+      }
+
       const userId = userProfile.userId;
 
-      // Map plan tier to daily limits
-      const dailyLimitMap = {
-        free: 10,
-        basic: 25, 
-        premium: 100,
-        pro: -1 // unlimited
+      // Create Razorpay order
+      setPaymentStatus('Creating payment order...');
+      const orderData = {
+        tier: plan.tierKey,
+        amount: plan.price,
+        currency: 'INR',
+        user_id: userId
       };
 
-      // Calculate subscription dates (1 year from now)
-      const startDate = new Date().toISOString().split('T')[0];
-      const endDate = new Date();
-      endDate.setFullYear(endDate.getFullYear() + 1);
-      const formattedEndDate = endDate.toISOString().split('T')[0];
+      const orderDetails = await createRazorpayOrder(orderData);
+      console.log("plan" , plan)
+      // Initialize payment
+      setPaymentStatus('Opening payment gateway...');
+      initializeRazorpayPayment(
+        {
+          ...orderDetails,
+          plan_name: plan.name
+        },
+        {
+          name: userProfile.name || userProfile.email || 'User',
+          email: userProfile.email || '',
+          phone: userProfile.phone || ''
+        },
+        (paymentResponse) => handlePaymentSuccess(paymentResponse, userProfile),
+        (error) => handlePaymentFailure(error)
+      );
 
-      // Prepare API payload
+    } catch (error) {
+      console.error('Error initiating payment:', error);
+      setPaymentStatus('');
+      alert(`Payment initiation failed: ${error.message}`);
+    } finally {
+      // Keep isSubscribing true until payment completes
+    }
+  };
+
+  /**
+   * Handles free subscription without payment
+   */
+  const handleFreeSubscription = async () => {
+    try {
+      setIsSubscribing(true);
+      setPaymentStatus('Creating free subscription...');
+      
+      const profile = localStorage.getItem('vyoriqUserProfile');
+      const userProfile = JSON.parse(profile);
+      const userId = userProfile.userId;
+
       const subscriptionData = {
         user_id: userId,
         tier: plan.tierKey,
         status: "active",
-        start_date: startDate,
-        end_date: formattedEndDate,
-        daily_limit: dailyLimitMap[plan.tierKey] || 10,
-        payment_provider: "stripe",
-        external_ref: `sub_${Date.now()}_${userId.slice(0, 8)}`
+        start_date: new Date().toISOString().split('T')[0],
+        end_date: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+        daily_limit: 10,
+        payment_provider: "free",
+        external_ref: generateExternalRef(userId, plan.tierKey)
       };
 
-      // Call create_subscription API
       const response = await fetch('http://localhost:8000/create_subscription', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(subscriptionData)
       });
 
@@ -63,18 +113,60 @@ export default function PlanCard({ plan, isCurrent }) {
         throw new Error(`Subscription creation failed: ${errorData.detail || response.statusText}`);
       }
 
-      const result = await response.json();
-      console.log('Subscription created successfully:', result);
-      
-      // Show success message and reload page to reflect changes
-      alert(`Successfully subscribed to ${plan.name} plan! Your subscription is now active.`);
+      alert(`Successfully subscribed to ${plan.name} plan!`);
       window.location.reload();
 
     } catch (error) {
-      console.error('Error creating subscription:', error);
+      console.error('Error creating free subscription:', error);
       alert(`Failed to create subscription: ${error.message}`);
     } finally {
       setIsSubscribing(false);
+      setPaymentStatus('');
+    }
+  };
+
+  /**
+   * Handles successful payment verification and subscription creation
+   */
+  const handlePaymentSuccess = async (paymentResponse, userProfile) => {
+    try {
+      setPaymentStatus('Verifying payment...');
+      
+      // Payment verification and subscription creation is now handled by backend
+      // No need to pass subscription data separately as backend creates subscription automatically
+
+      // Verify payment and create subscription
+      const result = await verifyPaymentAndCreateSubscription(paymentResponse, userProfile.userId);
+      
+      setPaymentStatus('Subscription created successfully!');
+      
+      // Show success message
+      alert(`Payment successful! You are now subscribed to ${plan.name} plan.`);
+      
+      // Reload page to reflect changes
+      setTimeout(() => {
+        window.location.reload();
+      }, 1000);
+
+    } catch (error) {
+      console.error('Error verifying payment:', error);
+      setPaymentStatus('');
+      alert(`Payment verification failed: ${error.message}`);
+    } finally {
+      setIsSubscribing(false);
+    }
+  };
+
+  /**
+   * Handles payment failure scenarios
+   */
+  const handlePaymentFailure = (error) => {
+    console.error('Payment failed:', error);
+    setPaymentStatus('');
+    setIsSubscribing(false);
+    
+    if (error !== 'Payment cancelled by user') {
+      alert(`Payment failed: ${error}`);
     }
   };
   return (
@@ -100,17 +192,26 @@ export default function PlanCard({ plan, isCurrent }) {
       </ul>
     </div>
 
-    <button
-      className={`mt-6 w-full py-2 rounded-xl font-semibold transition ${
-        isCurrent || isSubscribing
-          ? "bg-gray-300 text-gray-600 cursor-not-allowed"
-          : "bg-blue-600 hover:bg-blue-700 text-white"
-      }`}
-      disabled={isCurrent || isSubscribing}
-      onClick={handleSubscribe}
-    >
-      {isCurrent ? "Current Plan" : isSubscribing ? "Subscribing..." : "Subscribe"}
-    </button>
+    <div className="mt-6">
+      {paymentStatus && (
+        <div className="mb-2 text-sm text-blue-600 text-center">
+          {paymentStatus}
+        </div>
+      )}
+      <button
+        className={`w-full py-2 rounded-xl font-semibold transition ${
+          isCurrent || isSubscribing
+            ? "bg-gray-300 text-gray-600 cursor-not-allowed"
+            : "bg-blue-600 hover:bg-blue-700 text-white"
+        }`}
+        disabled={isCurrent || isSubscribing}
+        onClick={handleSubscribe}
+      >
+        {isCurrent ? "Current Plan" : 
+         isSubscribing ? (paymentStatus ? "Processing..." : "Subscribing...") : 
+         plan.price === 0 ? "Get Started" : "Subscribe"}
+      </button>
+    </div>
   </div>
 );
 
