@@ -173,11 +173,13 @@ Backend Creates Subscription → Update UI
 - `handlePaymentSuccess()` - Payment success handler
 - `handlePaymentFailure()` - Payment failure handler
 
-### 4. Files Modified - UPDATED FOR BACKEND API
+### 4. Files Modified - UPDATED FOR BACKEND API & ORDER DETAILS
 - `index.html` - Added Razorpay script
 - `.env` - Added Razorpay key configuration (`rzp_test_RA1aM8Jn65n3xH`)
-- `src/components/PlanCard.jsx` - Updated payment integration for new API
-- `src/services/razorpay.js` - Updated payment utilities for backend endpoints
+- `src/components/PlanCard.jsx` - Updated payment flow with navigation to OrderDetails
+- `src/services/razorpay.js` - Updated payment utilities for backend endpoints  
+- **NEW**: `src/components/OrderDetails.jsx` - Order details display page
+- **UPDATED**: `src/App.jsx` - Added `/order-details/:order_id` route
 
 ### 5. API Integration Changes
 **Order Creation**:
@@ -191,6 +193,32 @@ Backend Creates Subscription → Update UI
 - Simplified to only pass `user_id` and payment data
 - Backend now handles subscription creation automatically
 - Removed frontend subscription data preparation
+
+### 6. OrderDetails Page Implementation
+**New Features Added**:
+- **OrderDetails Component** (`src/components/OrderDetails.jsx`) 
+- **Dynamic Route**: `/order-details/:order_id` for order-specific pages
+- **API Integration**: Calls `getOrderDetails/<order_id>` endpoint
+- **Smart Redirects**: Replaces alerts with proper order detail screens
+
+**OrderDetails Functionality**:
+- Fetches order data from backend using order_id param
+- Handles nested API response structure with `success` and `data` properties
+- Displays success/failure status with appropriate icons
+- Shows comprehensive order information from nested structure:
+  - **Order Info**: Order ID, amount, currency, receipt, created date
+  - **Payment Info**: Payment ID, status (captured/failed), completion date, failure reasons
+  - **Subscription Info**: Tier, status, daily limits, validity period, subscription ID
+  - **User Info**: User ID reference
+- Provides contextual action buttons (Start Learning, Try Again, etc.)
+- Handles loading states and error scenarios gracefully
+- Smart status detection: Payment captured + Subscription active + is_active = Success
+
+**Updated Payment Flow**:
+- Payment success → Redirect to `/order-details/{order_id}`
+- Free subscription → Redirect to `/order-details/{order_id}`  
+- Payment failure → Alert (or can be updated to redirect to failure page)
+- Removed window.location.reload() in favor of navigation
 
 ## Security & VAPT Compliance Report
 
@@ -315,3 +343,106 @@ VITE_RAZORPAY_KEY_ID='rzp_test_xxxxxxxxxx'  # For testing
 3. **Add payment attempt logging** for security monitoring
 4. **Implement CSP headers** for additional XSS protection
 5. **Add webhook signature validation** on backend
+
+## API Documentation Update
+
+### Get Order Details Endpoint
+**URL**: `GET /getOrderDetails/<order_id>`
+
+**Success Response Structure**:
+```json
+{
+  "success": true,
+  "data": {
+    "order_info": {
+      "order_id": "order_MfYy2N5oJvR1mJ",
+      "receipt": "receipt_abc123",
+      "amount": 299.0,
+      "currency": "INR",
+      "created_at": "2025-08-26T12:30:00.000Z",
+      "provider": "razorpay"
+    },
+    "payment_info": {
+      "payment_id": "pay_MfYy2N5oJvR1mK",
+      "status": "captured",
+      "payment_completed_at": "2025-08-26T12:32:00.000Z",
+      "failure_reason": null
+    },
+    "subscription_info": {
+      "subscription_id": "sub_abc123",
+      "tier": "basic",
+      "status": "active",
+      "start_date": "2025-08-26",
+      "end_date": "2025-09-26",
+      "daily_limit": 50,
+      "is_active": true
+    },
+    "user_info": {
+      "user_id": "9ebe3ef1-9d44-40fa-8b6d-944abd02f08b"
+    }
+  }
+}
+```
+
+**Error Responses**:
+- **404 Not Found**: `{"detail": "Order not found"}`
+- **500 Internal Server Error**: `{"detail": "Failed to fetch order details"}`
+
+### OrderDetails Component Features
+- **Nested Response Handling**: Properly parses the complex API response structure
+- **Smart Success Detection**: Validates payment_info.status === "captured" AND subscription_info.status === "active" AND is_active === true
+- **Comprehensive Display**: Shows all relevant order, payment, and subscription details
+- **Error Handling**: Graceful handling of API failures and invalid responses
+- **Dynamic Content**: Adapts display based on available data fields
+
+## Navigation Enhancement - User Dropdown Implementation
+
+### 7. User Navigation Enhancement
+**Enhanced User Dropdown in LearnPage**: Replaced simple logout button with comprehensive navigation menu
+- **User Avatar**: Shows user initials in circular avatar
+- **User Info Display**: Shows name and email in dropdown header
+- **Pricing Access**: Direct link to subscription/pricing page
+- **Order History**: Navigate to order history page
+- **My Plans**: Navigate to subscription page  
+- **Logout**: Secure logout with localStorage cleanup
+- **Click Outside**: Auto-close dropdown when clicking outside
+- **Smooth Animations**: Dropdown arrow rotation and smooth transitions
+
+### 8. Order History Page
+**New Component**: `src/components/OrderHistory.jsx`
+- **API Integration**: Calls `getUserOrders/<user_id>` endpoint
+- **Order Filtering**: Filter by All, Successful, or Failed orders
+- **Comprehensive Display**: Order details with status badges
+- **Action Buttons**: View details and retry failed orders
+- **Empty States**: Proper handling when no orders exist
+- **Error Handling**: Retry functionality and error displays
+- **Responsive Design**: Works on desktop and mobile devices
+
+### 9. Learn Page Integration
+**Updated Component**: `src/components/LearnPage.jsx`
+- **User Dropdown Integration**: Replaced simple logout button with comprehensive dropdown menu
+- **Navigation Access**: Users can access pricing, order history, plans, and logout from dropdown
+- **Original Layout Maintained**: Kept the original sidebar and main content layout
+- **Enhanced UX**: Rich dropdown menu with user avatar, initials, and organized menu items
+
+### 10. Updated Routing Structure
+**Modified Files**: `src/App.jsx`
+- **Added Route**: `/order-history` for OrderHistory component
+- **Route Organization**: All routes properly configured for navigation
+- **Component Imports**: Added OrderHistory import
+
+### Updated File Structure
+```
+src/
+├── components/
+│   ├── Navbar.jsx              ← NEW: Reusable navbar component (available if needed)
+│   ├── OrderHistory.jsx        ← NEW: Order history page
+│   ├── OrderDetails.jsx        ← UPDATED: Order details with API integration
+│   ├── LearnPage.jsx          ← UPDATED: Enhanced with user dropdown menu
+│   └── PlanCard.jsx           ← UPDATED: Navigation to order details
+└── App.jsx                    ← UPDATED: Added order history route
+```
+
+### API Endpoints Required
+- `GET /getUserOrders/<user_id>` - Fetch user's order history
+- `GET /getOrderDetails/<order_id>` - Fetch specific order details (already implemented)

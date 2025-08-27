@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { supabase } from '../lib/supabaseClient';
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from 'react-i18next';
@@ -18,6 +18,8 @@ export default function LearnPage() {
   const [queryUsage, setQueryUsage] = useState({ current: 0, limit: 0 });
   const [showUpgradePopup, setShowUpgradePopup] = useState(false);
   const [subscriptionFetched, setSubscriptionFetched] = useState(false); // Prevent duplicate API calls
+  const [isUserDropdownOpen, setIsUserDropdownOpen] = useState(false);
+  const dropdownRef = useRef(null);
   const { t, i18n } = useTranslation();
   const navigate = useNavigate();
 
@@ -41,6 +43,20 @@ export default function LearnPage() {
   useEffect(() => {
     console.log('Query usage state updated:', queryUsage);
   }, [queryUsage]);
+
+  useEffect(() => {
+    // Close dropdown when clicking outside
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setIsUserDropdownOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
 
   const extractTopicFromQuery = (text) =>
     text.replace(/^(what is|define|explain|tell me about)\s+/i, '').split('?')[0].trim();
@@ -298,6 +314,54 @@ const renderAIContent = (content) => (
 
   if (loading) return <div className="p-4">Checking your subscription...</div>;
 
+  /**
+   * Handles navigation to subscription plans
+   */
+  const handlePricingClick = () => {
+    navigate('/subscription');
+  };
+
+  /**
+   * Handles user logout
+   */
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    localStorage.clear();
+    navigate('/');
+  };
+
+  /**
+   * Navigates to order history page
+   */
+  const handleOrderHistory = () => {
+    navigate('/order-history');
+    setIsUserDropdownOpen(false);
+  };
+
+  /**
+   * Toggles user dropdown menu
+   */
+  const toggleUserDropdown = () => {
+    setIsUserDropdownOpen(!isUserDropdownOpen);
+  };
+
+  /**
+   * Gets user display name or email
+   */
+  const getUserDisplayName = () => {
+    if (!userProfile) return 'User';
+    return userProfile.name || userProfile.email || username || 'User';
+  };
+
+  /**
+   * Gets user initials for avatar
+   */
+  const getUserInitials = () => {
+    if (!userProfile) return 'U';
+    const name = userProfile.name || userProfile.email || username || 'User';
+    return name.split(' ').map(part => part[0]).join('').toUpperCase().slice(0, 2);
+  };
+
   return (
     <div className="flex min-h-screen">
       <aside className="w-64 bg-gray-100 p-4 border-r overflow-y-auto flex flex-col">
@@ -323,16 +387,93 @@ const renderAIContent = (content) => (
       </aside>
 
       <main className="flex-1 p-6 pt-16 flex flex-col bg-white relative">
-        <div className="absolute top-4 right-6 text-lg text-gray-800 font-semibold">
-          🙏 {t('greeting')}, {username || email || t('learner')}
-          <button onClick={async () => {
-            await supabase.auth.signOut();
-            localStorage.clear();
-            window.location.href = '/auth';
-          }}
-            className="ml-4 text-sm bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600">
-            {t('logout') || "Logout"}
-          </button>
+        <div className="absolute top-4 right-6 flex items-center space-x-4">
+          <div className="text-lg text-gray-800 font-semibold">
+            🙏 {t('greeting')}, {username || email || t('learner')}
+          </div>
+          
+          {/* User Profile Dropdown */}
+          <div className="relative" ref={dropdownRef}>
+            <button
+              onClick={toggleUserDropdown}
+              className="flex items-center space-x-2 text-gray-700 hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 rounded-full p-1"
+            >
+              {/* User Avatar */}
+              <div className="w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center text-sm font-medium">
+                {getUserInitials()}
+              </div>
+              
+              {/* User Name */}
+              <span className="text-sm font-medium truncate max-w-32">
+                {getUserDisplayName()}
+              </span>
+              
+              {/* Dropdown Arrow */}
+              <svg 
+                className={`w-4 h-4 transition-transform duration-200 ${
+                  isUserDropdownOpen ? 'rotate-180' : ''
+                }`} 
+                fill="none" 
+                stroke="currentColor" 
+                viewBox="0 0 24 24"
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
+              </svg>
+            </button>
+
+            {/* Dropdown Menu */}
+            {isUserDropdownOpen && (
+              <div className="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none z-50">
+                <div className="py-1">
+                  {/* User Info Section */}
+                  <div className="px-4 py-3 border-b border-gray-100">
+                    <p className="text-sm font-medium text-gray-900 truncate">
+                      {getUserDisplayName()}
+                    </p>
+                    {userProfile?.email && (
+                      <p className="text-sm text-gray-500 truncate">
+                        {userProfile.email}
+                      </p>
+                    )}
+                  </div>
+
+                  {/* Menu Items */}
+                  <button
+                    onClick={handlePricingClick}
+                    className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors duration-200"
+                  >
+                    <svg className="w-4 h-4 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
+                    </svg>
+                    Pricing
+                  </button>
+
+                  <button
+                    onClick={handleOrderHistory}
+                    className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors duration-200"
+                  >
+                    <svg className="w-4 h-4 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                    Order History
+                  </button>
+
+
+                  <div className="border-t border-gray-100">
+                    <button
+                      onClick={handleLogout}
+                      className="flex items-center w-full px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors duration-200"
+                    >
+                      <svg className="w-4 h-4 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                      </svg>
+                      Logout
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
         </div>
 
         <div className="flex-1 overflow-y-auto space-y-4 mb-4">

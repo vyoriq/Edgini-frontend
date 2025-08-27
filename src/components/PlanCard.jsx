@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useNavigate } from 'react-router-dom';
 import { 
   createRazorpayOrder, 
   initializeRazorpayPayment, 
@@ -7,7 +8,8 @@ import {
   generateExternalRef
 } from '../services/razorpay';
 
-export default function PlanCard({ plan, isCurrent }) {
+export default function PlanCard({ plan, isCurrent, isDisabled = false }) {
+  const navigate = useNavigate();
   const [isSubscribing, setIsSubscribing] = useState(false);
   const [paymentStatus, setPaymentStatus] = useState('');
 
@@ -16,7 +18,7 @@ export default function PlanCard({ plan, isCurrent }) {
    * Creates order, processes payment, and creates subscription
    */
   const handleSubscribe = async () => {
-    if (isCurrent || isSubscribing) return;
+    if (isCurrent || isSubscribing || isDisabled) return;
 
     // Skip payment for free plan
     if (plan.tierKey === 'free' || plan.price === 0) {
@@ -113,8 +115,15 @@ export default function PlanCard({ plan, isCurrent }) {
         throw new Error(`Subscription creation failed: ${errorData.detail || response.statusText}`);
       }
 
-      alert(`Successfully subscribed to ${plan.name} plan!`);
-      window.location.reload();
+      // Redirect to order details page for free subscription
+      // For free plans, we'll need to get the order ID from backend response
+      if (response.ok) {
+        const result = await response.json();
+        const orderId = result.id || result.order_id || 'free_subscription';
+        navigate(`/order-details/${orderId}`);
+      } else {
+        alert(`Failed to create subscription: ${error.message}`);
+      }
 
     } catch (error) {
       console.error('Error creating free subscription:', error);
@@ -140,12 +149,12 @@ export default function PlanCard({ plan, isCurrent }) {
       
       setPaymentStatus('Subscription created successfully!');
       
-      // Show success message
-      alert(`Payment successful! You are now subscribed to ${plan.name} plan.`);
+      // Extract order ID from payment response or result
+      const orderId = paymentResponse.order_id || result.order_id || 'unknown';
       
-      // Reload page to reflect changes
+      // Redirect to order details page
       setTimeout(() => {
-        window.location.reload();
+        navigate(`/order-details/${orderId}`);
       }, 1000);
 
     } catch (error) {
@@ -166,6 +175,8 @@ export default function PlanCard({ plan, isCurrent }) {
     setIsSubscribing(false);
     
     if (error !== 'Payment cancelled by user') {
+      // For payment failures, we might not have an order ID
+      // You can either show alert or redirect to a generic failure page
       alert(`Payment failed: ${error}`);
     }
   };
@@ -200,14 +211,15 @@ export default function PlanCard({ plan, isCurrent }) {
       )}
       <button
         className={`w-full py-2 rounded-xl font-semibold transition ${
-          isCurrent || isSubscribing
+          isCurrent || isSubscribing || isDisabled
             ? "bg-gray-300 text-gray-600 cursor-not-allowed"
             : "bg-blue-600 hover:bg-blue-700 text-white"
         }`}
-        disabled={isCurrent || isSubscribing}
+        disabled={isCurrent || isSubscribing || isDisabled}
         onClick={handleSubscribe}
       >
         {isCurrent ? "Current Plan" : 
+         isDisabled ? "Current Plan" :
          isSubscribing ? (paymentStatus ? "Processing..." : "Subscribing...") : 
          plan.price === 0 ? "Get Started" : "Subscribe"}
       </button>
