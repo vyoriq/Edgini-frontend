@@ -230,6 +230,49 @@ export default function LearnPage() {
   };
 
   /**
+   * Renders subscription badge with plan type (Free, Pro, Premium)
+   * Shows appropriate styling and icons for each plan type
+   */
+  const renderSubscriptionBadge = () => {
+    if (!subscriptionDetails) return null;
+
+    const plan = subscriptionDetails.tier?.toLowerCase() || 'free';
+    
+    const planConfig = {
+      free: {
+        label: 'Free',
+        color: 'bg-gray-500',
+        icon: '🆓',
+        textColor: 'text-white'
+      },
+      pro: {
+        label: 'Pro',
+        color: 'bg-blue-600',
+        icon: '⚡',
+        textColor: 'text-white'
+      },
+      premium: {
+        label: 'Premium',
+        color: 'bg-gradient-to-r from-purple-600 to-gold-500',
+        icon: '👑',
+        textColor: 'text-white'
+      }
+    };
+
+    const config = planConfig[plan] || planConfig.free;
+    
+    return (
+      <div className="mb-4">
+        <h4 className="font-bold text-lg mb-2">💎 Subscription</h4>
+        <div className={`${config.color} ${config.textColor} px-3 py-2 rounded-lg flex items-center justify-center space-x-2 shadow-sm`}>
+          <span className="text-lg">{config.icon}</span>
+          <span className="font-semibold text-sm">{config.label} Plan</span>
+        </div>
+      </div>
+    );
+  };
+
+  /**
    * Renders upgrade popup modal when query limit is reached
    * Provides options to upgrade or continue with current plan
    */
@@ -376,6 +419,9 @@ const renderAIContent = (content) => (
           <p className="text-sm text-gray-700 mb-2">{t(`grades.${userProfile?.gradeLevel}`) || 'N/A'}</p>
           <h3 className="font-bold text-lg mb-2">🎯 {t('goal') || "Goal:"} </h3>
           <p className="text-sm text-gray-700 mb-4">{t(userProfile?.goal) || 'N/A'}</p>
+          
+          {/* Subscription Badge */}
+          {renderSubscriptionBadge()}
           
           {/* Query Usage Display */}
           {renderQueryUsage()}
