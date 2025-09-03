@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import authenticatedFetch from '../utils/apiClient';
 import { 
   createRazorpayOrder, 
   initializeRazorpayPayment, 
@@ -106,26 +107,13 @@ export default function PlanCard({ plan, isCurrent, isDisabled = false }) {
         external_ref: generateExternalRef(userId, plan.tierKey)
       };
 
-      const response = await fetch('http://localhost:8000/create_subscription', {
+      const result = await authenticatedFetch('/create_subscription', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(subscriptionData)
       });
 
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(`Subscription creation failed: ${errorData.detail || response.statusText}`);
-      }
-
-      // Redirect to order details page for free subscription
-      // For free plans, we'll need to get the order ID from backend response
-      if (response.ok) {
-        const result = await response.json();
-        const orderId = result.id || result.order_id || 'free_subscription';
-        navigate(`/order-details/${orderId}`);
-      } else {
-        alert(`Failed to create subscription: ${error.message}`);
-      }
+      const orderId = result.id || result.order_id || 'free_subscription';
+      navigate(`/order-details/${orderId}`);
 
     } catch (error) {
       console.error('Error creating free subscription:', error);

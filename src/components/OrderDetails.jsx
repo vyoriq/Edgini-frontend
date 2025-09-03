@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import authenticatedFetch from '../utils/apiClient';
 
 /**
  * OrderDetails Component - Fetches and displays order details from backend
@@ -26,19 +27,7 @@ export default function OrderDetails() {
         throw new Error(t('orderIDRequired'));
       }
 
-      const response = await fetch(`http://localhost:8000/getOrderDetails/${order_id}`, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-        }
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(`Failed to fetch order details: ${errorData.detail || response.statusText}`);
-      }
-
-      const result = await response.json();
+      const result = await authenticatedFetch(`/getOrderDetails/${order_id}`);
       
       // Handle the nested response structure
       if (result.success && result.data) {

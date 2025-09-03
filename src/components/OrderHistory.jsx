@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import authenticatedFetch from '../utils/apiClient';
 
 /**
  * OrderHistory Component - Displays user's order history with pagination and filtering
@@ -39,19 +40,7 @@ export default function OrderHistory() {
       const userProfile = JSON.parse(profile);
       const userId = userProfile.userId;
 
-      const response = await fetch(`http://localhost:8000/getOrderList/${userId}`, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-        }
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(`Failed to fetch order history: ${errorData.detail || response.statusText}`);
-      }
-
-      const result = await response.json();
+      const result = await authenticatedFetch(`/getOrderList/${userId}`);
       
       if (result.success && result.data) {
         setOrders(result.data.orders || []);

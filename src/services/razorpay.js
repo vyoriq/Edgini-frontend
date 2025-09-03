@@ -2,6 +2,7 @@
  * Razorpay payment service module
  * Handles payment order creation, verification, and error management
  */
+import authenticatedFetch from '../utils/apiClient';
 
 /**
  * Creates a Razorpay order via backend API
@@ -39,20 +40,10 @@ export const createRazorpayOrder = async (orderData) => {
       notes: notes
     };
 
-    const response = await fetch('http://localhost:8000/payments/create-order', {
+    const result = await authenticatedFetch('/payments/create-order', {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
       body: JSON.stringify(sanitizedData)
     });
-    console.log("------------",response)
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      throw new Error(`Order creation failed: ${errorData.detail || response.statusText}`);
-    }
-
-    const result = await response.json();
     console.log("-------------->",result)
     
     // Validate response structure (backend returns Razorpay order structure)
@@ -180,20 +171,10 @@ export const verifyPaymentAndCreateSubscription = async (paymentData, userId) =>
       user_id: String(userId).trim()
     };
 
-    const response = await fetch('http://localhost:8000/payments/verify', {
+    const result = await authenticatedFetch('/payments/verify', {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
       body: JSON.stringify(verificationData)
     });
-
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      throw new Error(`Payment verification failed: ${errorData.detail || response.statusText}`);
-    }
-
-    const result = await response.json();
     
     // Validate response
     if (!result.success) {

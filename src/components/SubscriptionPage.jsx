@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import authenticatedFetch from '../utils/apiClient';
 import PlanCard from "./PlanCard";
 
 const plans = [
@@ -66,21 +67,7 @@ export default function SubscriptionPage() {
       const userId = userProfile.userId;
 
       // Call backend subscription_details API
-      const response = await fetch(`http://localhost:8000/subscription_details?user_id=${userId}`, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json'
-        }
-      });
-
-      if (!response.ok) {
-        // If no subscription found, user is on free tier
-        setCurrentUserTier('free');
-        setSubscriptionData(null);
-        return;
-      }
-
-      const data = await response.json();
+      const data = await authenticatedFetch(`/subscription_details?user_id=${userId}`);
       setSubscriptionData(data);
       setCurrentUserTier(data.tier || 'free');
       

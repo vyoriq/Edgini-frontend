@@ -2,6 +2,7 @@ import React, { useEffect, useState, useRef } from 'react';
 import { supabase } from '../lib/supabaseClient';
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from 'react-i18next';
+import authenticatedFetch from '../utils/apiClient';
 
 export default function LearnPage() {
   const [userProfile, setUserProfile] = useState(null);
@@ -25,18 +26,45 @@ export default function LearnPage() {
 
 
   useEffect(() => {
-    const profile = localStorage.getItem('vyoriqUserProfile');
-    if (profile && !subscriptionFetched) {
-      const parsed = JSON.parse(profile);
-      setUserProfile(parsed);
-      setUsername(parsed.name || parsed.fullName || parsed.user_metadata?.name || '');
-      
-      // Only fetch subscription details once
-      setSubscriptionFetched(true);
-      fetchSubscriptionDetails();
-    }
-    const savedLang = localStorage.getItem('vyoriqLanguage') || 'en';
-    setLanguage(savedLang);
+    const initializeApp = async () => {
+      try {
+        // Add alert to see if we reach here
+        console.log('LearnPage initializing...');
+        
+        // Wait for session to be ready
+        const { data: { session }, error } = await supabase.auth.getSession();
+        
+        // Log to both console and alert so we can see it
+        const sessionStatus = session ? 'Session found' : 'No session';
+        console.log('Session status:', sessionStatus, session);
+        
+        // Don't redirect immediately, let's see what happens
+        const profile = localStorage.getItem('vyoriqUserProfile');
+        if (profile && !subscriptionFetched) {
+          const parsed = JSON.parse(profile);
+          setUserProfile(parsed);
+          setUsername(parsed.name || parsed.fullName || parsed.user_metadata?.name || '');
+          
+          // Only try to fetch if we have a session
+          if (session) {
+            setSubscriptionFetched(true);
+            fetchSubscriptionDetails();
+          } else {
+            console.error('No session available for API calls');
+            // Show alert instead of immediate redirect
+            alert('No active session found. Please log in again.');
+            setTimeout(() => navigate('/auth'), 2000);
+          }
+        }
+        const savedLang = localStorage.getItem('vyoriqLanguage') || 'en';
+        setLanguage(savedLang);
+      } catch (error) {
+        console.error('Error in LearnPage initialization:', error);
+        alert('Error initializing: ' + error.message);
+      }
+    };
+    
+    initializeApp();
   }, [subscriptionFetched]);
 
   // Debug queryUsage changes
@@ -78,18 +106,7 @@ export default function LearnPage() {
       const userId = userProfile.userId;
 
       // Call backend subscription_details API with user_id parameter
-      const response = await fetch(`http://localhost:8000/subscription_details?user_id=${userId}`, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json'
-        }
-      });
-
-      if (!response.ok) {
-        throw new Error(`Subscription API error: ${response.status}`);
-      }
-
-      const data = await response.json();
+      const data = await authenticatedFetch(`/subscription_details?user_id=${userId}`);
       setSubscriptionDetails(data);
       setQueryUsage(prev => ({
         current: prev.current || data.current , // Keep current usage from curate API
@@ -131,25 +148,10 @@ export default function LearnPage() {
 
 
     try {
-      const response = await fetch('http://localhost:8000/curate', {
+      const data = await authenticatedFetch('/curate', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(body),
       });
-
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        
-        // Handle specific "Daily query limit reached" exception
-        if (errorData.detail && errorData.detail.includes('Daily query limit reached')) {
-          setShowUpgradePopup(true);
-          return;
-        }
-        
-        throw new Error(`API Error: ${response.status} ${errorData.detail || response.statusText}`);
-      }
-
-      const data = await response.json();
       const aiReply = data.content.text;
 
       // Update current query usage from curate API response
