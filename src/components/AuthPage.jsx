@@ -120,8 +120,8 @@ export default function AuthPage() {
     <div className="min-h-screen bg-gradient-to-r from-blue-500 to-blue-600 flex items-center justify-center p-4">
       <div className="bg-white p-6 rounded-lg shadow-md w-full max-w-sm text-center">
 
-        <img src="/assets/edgini-logo.png" alt="Edgini Logo" className="mx-auto h-20 my-4" />
-        <h2 className="text-2xl font-bold mb-4">{t('signInHeading') || 'Learn with Edgini'}</h2>
+        <img src="/assets/edgini-logo.png" alt="EdGini Logo" className="mx-auto h-20 my-4" />
+        <h2 className="text-2xl font-bold mb-4">{t('signInHeading') || 'Learn with EdGini'}</h2>
 
           <button
             onClick={handleGoogleLogin}
@@ -165,7 +165,7 @@ export default function AuthPage() {
         </button>
 
         <p className="text-sm mt-4">
-          {t('newUserPrompt') || 'New to Edgini?'}{' '}
+          {t('newUserPrompt') || 'New to EdGini?'}{' '}
           <button onClick={handleManualRegister} className="text-blue-600 underline">
             {t('registerHere') || 'Register here'}
           </button>

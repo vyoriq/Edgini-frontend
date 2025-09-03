@@ -208,7 +208,7 @@ export default function OnboardingPage() {
     <div className="min-h-screen bg-[#002366] flex items-center justify-center">
       <div className="bg-white rounded-lg p-6 w-full max-w-xl shadow-lg">
         <div className="flex justify-center mb-4">
-          <img src="assets/edgini-logo.png" alt="Edgini" className="h-16" />
+          <img src="assets/edgini-logo.png" alt="EdGini" className="h-16" />
         </div>
         <h3 className="text-center text-md mb-4">🙏 {t('greeting')} {fullName || email || t('learner')}</h3>
 

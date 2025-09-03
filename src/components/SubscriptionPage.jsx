@@ -1,47 +1,52 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import PlanCard from "./PlanCard";
 
 const plans = [
   {
-    name: "Free",
+    nameKey: "freePlan",
     price: 0,
-    limit: "10 queries/day",
-    features: ["Basic AI access", "Community support"],
+    limitKey: "10 queries/day", // We'll translate this in the component
+    featureKeys: ["basicAIAccess", "communitySupport"],
     tierKey: "free",
   },
   {
-    name: "Basic",
+    nameKey: "basicPlan",
     price: 299,
-    limit: "25 queries/day",
-    features: ["AI access", "Email support"],
+    limitKey: "25 queries/day",
+    featureKeys: ["aiAccess", "emailSupport"],
     tierKey: "basic",
   },
   {
-    name: "Premium",
+    nameKey: "premiumPlan",
     price: 999,
-    limit: "100 queries/day",
-    features: ["Priority AI access", "Chat history", "Priority support"],
+    limitKey: "100 queries/day",
+    featureKeys: ["priorityAIAccess", "chatHistory", "prioritySupport"],
     tierKey: "premium",
   },
   {
-    name: "Pro",
+    nameKey: "proPlan",
     price: 1999,
-    limit: "Unlimited",
-    features: ["Priority AI access", "Chat history", "Dedicated", "Explanation + Quiz Support"],
+    limitKey: "unlimited",
+    featureKeys: ["priorityAIAccess", "chatHistory", "dedicated", "explanationQuizSupport"],
     tierKey: "pro",
   },
 ];
 
 export default function SubscriptionPage() {
   const navigate = useNavigate();
+  const { t, i18n } = useTranslation();
   const [currentUserTier, setCurrentUserTier] = useState(null);
   const [subscriptionData, setSubscriptionData] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     fetchSubscriptionDetails();
-  }, []);
+    // Set language from localStorage
+    const savedLang = localStorage.getItem("vyoriqLanguage") || "en";
+    i18n.changeLanguage(savedLang);
+  }, [i18n]);
 
   /**
    * Fetches current user subscription details from API
@@ -107,7 +112,7 @@ export default function SubscriptionPage() {
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading subscription details...</p>
+          <p className="text-gray-600">{t('loadingSubscription')}</p>
         </div>
       </div>
     );
@@ -119,13 +124,13 @@ export default function SubscriptionPage() {
       <div className="flex justify-center mb-4">
           <img 
             src="assets/edgini-logo.png" 
-            alt="Edgini" 
+            alt="EdGini" 
             className="h-16 cursor-pointer hover:opacity-80 transition-opacity" 
             onClick={() => navigate('/learn')}
           />
         </div>
       <h2 className="text-3xl font-bold text-center mb-10 text-gray-800">
-        Choose Your Plan
+        {t('choosePlan')}
       </h2>
       <div className="flex flex-wrap gap-6 justify-center">
         {visiblePlans.map((plan, idx) => (

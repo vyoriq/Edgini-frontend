@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 
 /**
  * OrderHistory Component - Displays user's order history with pagination and filtering
@@ -7,6 +8,7 @@ import { useNavigate } from 'react-router-dom';
  */
 export default function OrderHistory() {
   const navigate = useNavigate();
+  const { t, i18n } = useTranslation();
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -14,7 +16,10 @@ export default function OrderHistory() {
 
   useEffect(() => {
     fetchOrderHistory();
-  }, []);
+    // Set language from localStorage
+    const savedLang = localStorage.getItem("vyoriqLanguage") || "en";
+    i18n.changeLanguage(savedLang);
+  }, [i18n]);
 
   /**
    * Fetches order history from the API
@@ -76,7 +81,7 @@ export default function OrderHistory() {
    * Formats date for display
    */
   const formatDate = (dateString) => {
-    if (!dateString) return 'N/A';
+    if (!dateString) return t('na');
     return new Date(dateString).toLocaleDateString('en-IN', {
       year: 'numeric',
       month: 'short',
@@ -100,7 +105,7 @@ export default function OrderHistory() {
    */
   const getStatusText = (order) => {
     const paymentStatus = order.payment_info?.status;
-    return paymentStatus === 'captured' ? 'Success' : 'Failed';
+    return paymentStatus === 'captured' ? t('success') : t('failed');
   };
 
   /**
@@ -108,12 +113,12 @@ export default function OrderHistory() {
    */
   const getPlanName = (tier) => {
     const planNames = {
-      'basic': 'Basic Plan',
-      'premium': 'Premium Plan',
-      'pro': 'Pro Plan',
-      'free': 'Free Plan'
+      'basic': t('basicPlan'),
+      'premium': t('premiumPlan'),
+      'pro': t('proPlan'),
+      'free': t('freePlan')
     };
-    return planNames[tier] || 'Subscription Plan';
+    return planNames[tier] || `${t('subscription')} ${t('plan')}`;
   };
 
   /**
@@ -138,12 +143,12 @@ export default function OrderHistory() {
         {/* Header with Logo */}
         <div className="mb-8 flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Order History</h1>
-            <p className="mt-2 text-gray-600">View and manage your subscription orders</p>
+            <h1 className="text-3xl font-bold text-gray-900">{t('orderHistory')}</h1>
+            <p className="mt-2 text-gray-600">{t('viewManageOrders')}</p>
           </div>
           <img 
             src="/assets/edgini-logo.png" 
-            alt="Edgini" 
+            alt="EdGini" 
             className="h-12 w-auto cursor-pointer hover:opacity-80 transition-opacity"
             onClick={() => navigate('/learn')}
           />
@@ -154,7 +159,7 @@ export default function OrderHistory() {
         {loading && (
           <div className="text-center py-12">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-            <p className="text-gray-600">Loading order history...</p>
+            <p className="text-gray-600">{t('loadingOrderHistory')}</p>
           </div>
         )}
 
@@ -164,13 +169,13 @@ export default function OrderHistory() {
             <svg className="w-12 h-12 text-red-600 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L5.082 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
             </svg>
-            <h3 className="text-lg font-medium text-red-800 mb-2">Error Loading Orders</h3>
+            <h3 className="text-lg font-medium text-red-800 mb-2">{t('errorLoadingOrders')}</h3>
             <p className="text-red-600 mb-4">{error}</p>
             <button
               onClick={fetchOrderHistory}
               className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg font-medium transition-colors"
             >
-              Retry
+              {t('retry')}
             </button>
           </div>
         )}
@@ -181,13 +186,13 @@ export default function OrderHistory() {
             <svg className="w-16 h-16 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
             </svg>
-            <h3 className="text-lg font-medium text-gray-900 mb-2">No Orders Found</h3>
-            <p className="text-gray-600 mb-4">You haven't made any orders yet.</p>
+            <h3 className="text-lg font-medium text-gray-900 mb-2">{t('noOrdersFound')}</h3>
+            <p className="text-gray-600 mb-4">{t('noOrdersMessage')}</p>
             <button
               onClick={() => navigate('/subscription')}
               className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium transition-colors"
             >
-              Browse Plans
+              {t('browsePlans')}
             </button>
           </div>
         )}
@@ -225,16 +230,16 @@ export default function OrderHistory() {
 
                       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm text-gray-600">
                         <div>
-                          <span className="font-medium">Order ID:</span>
-                          <p className="font-mono mt-1">{order.order_info?.order_id || 'N/A'}</p>
+                          <span className="font-medium">{t('orderID')}:</span>
+                          <p className="font-mono mt-1">{order.order_info?.order_id || t('na')}</p>
                         </div>
                         <div>
-                          <span className="font-medium">Payment ID:</span>
-                          <p className="font-mono mt-1">{order.payment_info?.payment_id || 'N/A'}</p>
+                          <span className="font-medium">{t('paymentID')}:</span>
+                          <p className="font-mono mt-1">{order.payment_info?.payment_id || t('na')}</p>
                         </div>
                         <div>
-                          <span className="font-medium">Status:</span>
-                          <p className="mt-1 capitalize">{order.payment_info?.status || 'Pending'}</p>
+                          <span className="font-medium">{t('status')}:</span>
+                          <p className="mt-1 capitalize">{order.payment_info?.status || t('pending')}</p>
                         </div>
                       </div>
                     </div>

@@ -90,7 +90,7 @@ export default function Navbar() {
           <div className="flex-shrink-0 flex items-center">
             <img 
               src="/assets/edgini-logo.png" 
-              alt="Edgini" 
+              alt="EdGini" 
               className="h-8 w-auto cursor-pointer"
               onClick={() => navigate('/learn')}
             />

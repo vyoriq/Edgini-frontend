@@ -195,13 +195,13 @@ export default function LearnPage() {
     return (
       <div className="bg-gray-100">
         <h4 className="font-bold text-lg mb-2">
-          📊 Query Usage
+          📊 {t('queryUsage')}
         </h4>
         
         {isUnlimited ? (
           <div className="text-center">
-            <p className="text-green-600 font-medium">Unlimited Queries</p>
-            <p className="text-xs text-gray-500">Pro Plan</p>
+            <p className="text-green-600 font-medium">{t('unlimitedQueries')}</p>
+            <p className="text-xs text-gray-500">{t('proPlan')}</p>
           </div>
         ) : (
           <>
@@ -221,7 +221,7 @@ export default function LearnPage() {
             </div>
             
             <p className="text-xs text-center text-gray-600">
-              {limit - current} queries remaining
+              {limit - current} {t('queriesRemaining')}
             </p>
           </>
         )}
@@ -263,10 +263,10 @@ export default function LearnPage() {
     
     return (
       <div className="mb-4">
-        <h4 className="font-bold text-lg mb-2">💎 Subscription</h4>
+        <h4 className="font-bold text-lg mb-2">💎 {t('subscription')}</h4>
         <div className={`${config.color} ${config.textColor} px-3 py-2 rounded-lg flex items-center justify-center space-x-2 shadow-sm`}>
           <span className="text-lg">{config.icon}</span>
-          <span className="font-semibold text-sm">{config.label} Plan</span>
+          <span className="font-semibold text-sm">{t(`${plan}Plan`)} {t('plan')}</span>
         </div>
       </div>
     );
@@ -288,11 +288,11 @@ export default function LearnPage() {
             </div>
             
             <h3 className="text-lg font-medium text-gray-900 mb-2">
-              Daily Query Limit Reached
+              {t('dailyQueryLimit')}
             </h3>
             
             <p className="text-sm text-gray-600 mb-6">
-              You've reached your daily query limit. Upgrade your plan to continue learning with Edgini.
+              {t('queryLimitMessage')}
             </p>
             
             <div className="flex flex-col sm:flex-row gap-3">
@@ -303,19 +303,19 @@ export default function LearnPage() {
                 }}
                 className="flex-1 bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors font-medium"
               >
-                Upgrade Plan
+                {t('upgradePlan')}
               </button>
               
               <button
                 onClick={() => setShowUpgradePopup(false)}
                 className="flex-1 bg-gray-200 text-gray-800 px-4 py-2 rounded-md hover:bg-gray-300 transition-colors font-medium"
               >
-                Stay on Current Plan
+                {t('stayCurrentPlan')}
               </button>
             </div>
             
             <p className="text-xs text-gray-500 mt-3">
-              Your queries will reset tomorrow
+              {t('queriesResetTomorrow')}
             </p>
           </div>
         </div>
@@ -355,7 +355,7 @@ const renderAIContent = (content) => (
     setLoading(false);
   }, []);
 
-  if (loading) return <div className="p-4">Checking your subscription...</div>;
+  if (loading) return <div className="p-4">{t('checkingSubscription')}</div>;
 
   /**
    * Handles navigation to subscription plans
@@ -410,7 +410,7 @@ const renderAIContent = (content) => (
       <aside className="w-64 bg-gray-100 p-4 border-r overflow-y-auto flex flex-col">
         <div>
           <div className="mb-4 flex justify-center">
-            <img src="assets/edgini-logo.png" alt="Edgini Logo" 
+            <img src="assets/edgini-logo.png" alt="EdGini Logo" 
             // className="h-10 w-auto" 
             className="mx-auto h-14 my-4"
             />
@@ -491,7 +491,7 @@ const renderAIContent = (content) => (
                     <svg className="w-4 h-4 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
                     </svg>
-                    Pricing
+                    {t('pricing')}
                   </button>
 
                   <button
@@ -501,7 +501,7 @@ const renderAIContent = (content) => (
                     <svg className="w-4 h-4 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                     </svg>
-                    Order History
+                    {t('orderHistory')}
                   </button>
 
 
@@ -513,7 +513,7 @@ const renderAIContent = (content) => (
                       <svg className="w-4 h-4 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
                       </svg>
-                      Logout
+                      {t('logout')}
                     </button>
                   </div>
                 </div>
@@ -532,7 +532,7 @@ const renderAIContent = (content) => (
         </div>
 
         <form onSubmit={handleSubmit} className="flex items-center gap-2">
-          <input type="text" value={query} onChange={(e) => setQuery(e.target.value)} placeholder={t("askEdgini") || "Ask Edgini anything..."}
+          <input type="text" value={query} onChange={(e) => setQuery(e.target.value)} placeholder={t("askEdgini") || "Ask EdGini anything..."}
             className="flex-1 p-2 border rounded shadow font-semibold text-blue-900 placeholder-blue-900" required />
           <button type="submit" className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">{t("send") || "Send"}</button>
         </form>

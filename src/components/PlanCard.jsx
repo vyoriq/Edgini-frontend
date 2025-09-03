@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { 
   createRazorpayOrder, 
   initializeRazorpayPayment, 
@@ -10,6 +11,7 @@ import {
 
 export default function PlanCard({ plan, isCurrent, isDisabled = false }) {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const [isSubscribing, setIsSubscribing] = useState(false);
   const [paymentStatus, setPaymentStatus] = useState('');
 
@@ -33,20 +35,20 @@ export default function PlanCard({ plan, isCurrent, isDisabled = false }) {
       // Get and validate user profile
       const profile = localStorage.getItem('vyoriqUserProfile');
       if (!profile) {
-        alert('Please login first to subscribe');
+        alert(t('pleaseLoginFirst'));
         return;
       }
       
       const userProfile = JSON.parse(profile);
       if (!validateUserInfo(userProfile)) {
-        alert('Invalid user information. Please login again.');
+        alert(t('invalidUserInfo'));
         return;
       }
 
       const userId = userProfile.userId;
 
       // Create Razorpay order
-      setPaymentStatus('Creating payment order...');
+      setPaymentStatus(t('processing'));
       const orderData = {
         tier: plan.tierKey,
         amount: plan.price,
@@ -57,7 +59,7 @@ export default function PlanCard({ plan, isCurrent, isDisabled = false }) {
       const orderDetails = await createRazorpayOrder(orderData);
       console.log("plan" , plan)
       // Initialize payment
-      setPaymentStatus('Opening payment gateway...');
+      setPaymentStatus(t('processing'));
       initializeRazorpayPayment(
         {
           ...orderDetails,
@@ -147,7 +149,7 @@ export default function PlanCard({ plan, isCurrent, isDisabled = false }) {
       // Verify payment and create subscription
       const result = await verifyPaymentAndCreateSubscription(paymentResponse, userProfile.userId);
       
-      setPaymentStatus('Subscription created successfully!');
+      setPaymentStatus(t('subscriptionCreated'));
       
       // Extract order ID from payment response or result
       const orderId = paymentResponse.order_id || result.order_id || 'unknown';
@@ -187,17 +189,19 @@ export default function PlanCard({ plan, isCurrent, isDisabled = false }) {
     } bg-white flex flex-col justify-between`}
   >
     <div>
-      <h3 className="text-xl font-semibold text-gray-800">{plan.name}</h3>
+      <h3 className="text-xl font-semibold text-gray-800">{t(plan.nameKey)}</h3>
       <p className="text-3xl font-bold text-blue-700 mt-2">
         ₹{plan.price}
-        <span className="text-sm text-gray-500 font-normal"> /month</span>
+        <span className="text-sm text-gray-500 font-normal"> /{t('month')}</span>
       </p>
-      <p className="mt-2 text-sm text-gray-600">{plan.limit}</p>
+      <p className="mt-2 text-sm text-gray-600">
+        {plan.limitKey === 'unlimited' ? t('unlimited') : plan.limitKey}
+      </p>
 
       <ul className="mt-4 space-y-2 text-sm text-gray-700">
-        {plan.features.map((feature, i) => (
+        {plan.featureKeys.map((featureKey, i) => (
           <li key={i} className="flex items-start gap-2">
-            <span className="text-green-500 font-bold">✓</span> {feature}
+            <span className="text-green-500 font-bold">✓</span> {t(featureKey)}
           </li>
         ))}
       </ul>
@@ -218,10 +222,10 @@ export default function PlanCard({ plan, isCurrent, isDisabled = false }) {
         disabled={isCurrent || isSubscribing || isDisabled}
         onClick={handleSubscribe}
       >
-        {isCurrent ? "Current Plan" : 
-         isDisabled ? "Current Plan" :
-         isSubscribing ? (paymentStatus ? "Processing..." : "Subscribing...") : 
-         plan.price === 0 ? "Get Started" : "Subscribe"}
+        {isCurrent ? t('currentPlan') : 
+         isDisabled ? t('currentPlan') :
+         isSubscribing ? (paymentStatus ? t('processing') : t('subscribing')) : 
+         plan.price === 0 ? t('getStarted') : t('subscribe')}
       </button>
     </div>
   </div>

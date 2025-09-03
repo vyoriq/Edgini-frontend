@@ -1,81 +1,26 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 
 export default function Homepage() {
   const [locale, setLocale] = useState('en');
-  const [greeting, setGreeting] = useState('Welcome to Edgini');
   const navigate = useNavigate();
+  const { t, i18n } = useTranslation();
 
   useEffect(() => {
     const browserLang = navigator.language || navigator.userLanguage;
     const langCode = localStorage.getItem("vyoriqLanguage") || browserLang.split('-')[0] || "en";
     setLocale(langCode);
     localStorage.setItem("vyoriqLanguage", langCode);
-
-    const greetings = {
-    en: 'Welcome to Edgini',
-    hi: 'एडजिनी में आपका स्वागत है',
-    bn: 'এডজিনিতে স্বাগতম',
-    ar: 'مرحبًا بك في Edgini',
-    es: 'Bienvenido a Edgini',
-    kn: 'ಎಡ್ಜಿನಿಗೆ ಸ್ವಾಗತ'
-  };
-
-    setGreeting(greetings[langCode] || greetings['en']);
-  }, []);
+    i18n.changeLanguage(langCode);
+  }, [i18n]);
 
   const handleLanguageChange = (e) => {
     const langCode = e.target.value;
     setLocale(langCode);
     localStorage.setItem("vyoriqLanguage", langCode);
-
-    const greetings = {
-    en: 'Welcome to Edgini',
-    hi: 'एडजिनी में आपका स्वागत है',
-    bn: 'এডজিনিতে স্বাগতম',
-    ar: 'مرحبًا بك في Edgini',
-    es: 'Bienvenido a Edgini',
-    kn: 'ಎಡ್ಜಿನಿಗೆ ಸ್ವಾಗತ'
+    i18n.changeLanguage(langCode);
   };
-
-    setGreeting(greetings[langCode] || greetings['en']);
-  };
-
-const translations = {
-  en: {
-    button: "Start Your Journey",
-    tagline: "Education for Everyone Everywhere",
-    subTagline: "Let's build tomorrow, today"
-  },
-  hi: {
-    button: "अपनी यात्रा शुरू करें",
-    tagline: "हर किसी के लिए हर जगह शिक्षा",
-    subTagline: "आइए हम कल का निर्माण आज करें"
-  },
-  bn: {
-    button: "আপনার যাত্রা শুরু করুন",
-    tagline: "সবাইয়ের জন্য সর্বত্র শিক্ষা",
-    subTagline: "আসুন আগামীকালকে আজই গড়ে তুলি"
-  },
-  ar: {
-    button: "ابدأ رحلتك",
-    tagline: "التعليم للجميع في كل مكان",
-    subTagline: "دعونا نبني الغد اليوم"
-  },
-  es: {
-    button: "Comienza tu viaje",
-    tagline: "Educación para todos en todas partes",
-    subTagline: "Construyamos el mañana, hoy"
-  },
-  kn: {
-    button: "ನಿಮ್ಮ ಪ್ರಯಾಣ ಪ್ರಾರಂಭಿಸಿ",
-    tagline: "ಎಲ್ಲರಿಗೂ ಎಲ್ಲೆಲ್ಲಾದರೂ ಶಿಕ್ಷಣ",
-    subTagline: "ನಾಳೆ ನಿರ್ಮಿಸಲು ಇಂದು ಪ್ರಾರಂಭಿಸೋಣ"
-  }
-};
-
-
-  const t = translations[locale] || translations['en'];
 
   return (
     <div className="min-h-screen flex flex-col justify-center items-center bg-gradient-to-br from-blue-900 to-blue-600 text-white relative">
@@ -84,6 +29,7 @@ const translations = {
           value={locale}
           onChange={handleLanguageChange}
           className="bg-white text-black p-2 rounded shadow"
+          aria-label={t('selectLanguage')}
         >
           <option value="en">English</option>
           <option value="hi">हिन्दी</option>
@@ -96,23 +42,21 @@ const translations = {
 
       <img
         src="/assets/edgini-logo.png"
-        alt="Edgini Logo"
+        alt="EdGini Logo"
         className="h-24 w-auto mb-4"
       />
 
-      <p className="text-xl md:text-2xl mb-2">{greeting}</p>
-      <p className="text-md md:text-lg mb-8">{t.tagline}</p>
-
+      <p className="text-xl md:text-2xl mb-2">{t('welcome')}</p>
+      <p className="text-md md:text-lg mb-8">{t('educationTagline')}</p>
 
       <button
         onClick={() => navigate('/auth')}
         className="bg-white text-blue-800 px-6 py-3 rounded-full font-semibold shadow hover:bg-gray-100 transition"
       >
-        {t.button}
+        {t('startYourJourney')}
       </button>
 
-      <p className="text-sm mt-4">{t.subTagline}</p>
-
+      <p className="text-sm mt-4">{t('futureTagline')}</p>
     </div>
   );
 }

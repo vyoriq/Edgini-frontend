@@ -7,13 +7,13 @@
   "password": "Contraseña",
   "login": "Iniciar sesión",
   "register": "Registrarse",
-  "newUserPrompt": "¿Nuevo en Edgini?",
+  "newUserPrompt": "¿Nuevo en EdGini?",
   "registerHere": "Regístrate aquí",
   "alreadyHaveAccount": "¿Ya tienes una cuenta?",
   "loginHere": "Inicia sesión aquí",
   "loginFailed": "Inicio de sesión fallido",
   "signupFailed": "Registro fallido",
-  "onboardingHeading": "👋 ¡Bienvenido a Edgini!",
+  "onboardingHeading": "👋 ¡Bienvenido a EdGini!",
   "name": "Nombre completo",
   "emailOrMobile": "Correo electrónico o número de teléfono móvil",
   "password": "Contraseña",
@@ -29,5 +29,5 @@
   "continue": "Continuar",
   "educationTagline": "Educación para todos en todas partes",
   "futureTagline": "Construyamos el futuro hoy",
-  "startAsking": "Pregúntale a Edgini"
+  "startAsking": "Pregúntale a EdGini"
 }
