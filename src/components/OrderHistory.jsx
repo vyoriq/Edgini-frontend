@@ -193,7 +193,7 @@ export default function OrderHistory() {
               {orders.map((order, index) => (
                 <div 
                   key={order.order_info?.order_id || index} 
-                  className="p-6 hover:bg-gray-50 transition-colors cursor-pointer"
+                  className="p-6 hover:bg-gray-100 transition-colors cursor-pointer"
                   onClick={() => navigate(`/order-details/${order.order_info?.order_id}`)}
                 >
                   <div className="flex items-center justify-between">
