@@ -3,6 +3,7 @@ import { supabase } from '../lib/supabaseClient';
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from 'react-i18next';
 import authenticatedFetch from '../utils/apiClient';
+import HindiKeyboard from './HindiKeyboard';
 
 export default function LearnPage() {
   const [userProfile, setUserProfile] = useState(null);
@@ -20,6 +21,7 @@ export default function LearnPage() {
   const [showUpgradePopup, setShowUpgradePopup] = useState(false);
   const [subscriptionFetched, setSubscriptionFetched] = useState(false); // Prevent duplicate API calls
   const [isUserDropdownOpen, setIsUserDropdownOpen] = useState(false);
+  const [isHindiKeyboardVisible, setIsHindiKeyboardVisible] = useState(false);
   const dropdownRef = useRef(null);
   const { t, i18n } = useTranslation();
   const navigate = useNavigate();
@@ -247,7 +249,7 @@ export default function LearnPage() {
         icon: '🆓',
         textColor: 'text-white'
       },
-      free: {
+      basic: {
         label: 'Basic',
         color: 'bg-blue-600',
         icon: '⚡',
@@ -410,6 +412,39 @@ const renderAIContent = (content) => (
     return name.split(' ').map(part => part[0]).join('').toUpperCase().slice(0, 2);
   };
 
+  /**
+   * Handles Hindi keyboard input changes
+   * Updates query state with Hindi text input
+   * @param {string} input - Hindi text from virtual keyboard
+   */
+  const handleHindiKeyboardChange = (input) => {
+    setQuery(input);
+  };
+
+  /**
+   * Toggles Hindi keyboard visibility
+   * Shows/hides virtual keyboard based on language selection
+   */
+  const toggleHindiKeyboard = () => {
+    setIsHindiKeyboardVisible(!isHindiKeyboardVisible);
+  };
+
+  /**
+   * Closes Hindi keyboard
+   */
+  const closeHindiKeyboard = () => {
+    setIsHindiKeyboardVisible(false);
+  };
+
+  /**
+   * Checks if Hindi keyboard should be available
+   * Returns true if current language is Hindi
+   * @returns {boolean} Whether Hindi keyboard should be shown
+   */
+  const shouldShowHindiKeyboard = () => {
+    return language === 'hi';
+  };
+
   return (
     <div className="flex min-h-screen">
       <aside className="w-64 bg-gray-100 p-4 border-r overflow-y-auto flex flex-col">
@@ -537,14 +572,46 @@ const renderAIContent = (content) => (
         </div>
 
         <form onSubmit={handleSubmit} className="flex items-center gap-2">
-          <input type="text" value={query} onChange={(e) => setQuery(e.target.value)} placeholder={t("askEdgini") || "Ask EdGini anything..."}
-            className="flex-1 p-2 border rounded shadow font-semibold text-blue-900 placeholder-blue-900" required />
+          <div className="flex-1 relative">
+            <input 
+              type="text" 
+              value={query} 
+              onChange={(e) => setQuery(e.target.value)} 
+              placeholder={t("askEdgini") || "Ask EdGini anything..."}
+              className="w-full p-2 border rounded shadow font-semibold text-blue-900 placeholder-blue-900" 
+              required 
+            />
+            {shouldShowHindiKeyboard() && (
+              <button
+                type="button"
+                onClick={toggleHindiKeyboard}
+                className="absolute right-2 top-1/2 transform -translate-y-1/2 text-blue-600 hover:text-blue-800 focus:outline-none focus:ring-2 focus:ring-blue-500 rounded-md p-1"
+                title="Toggle Hindi Keyboard"
+                aria-label="Toggle Hindi keyboard"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
+                </svg>
+                <span className="text-xs font-bold">हि</span>
+              </button>
+            )}
+          </div>
           <button type="submit" className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">{t("send") || "Send"}</button>
         </form>
       </main>
       
       {/* Upgrade Popup Modal */}
       {renderUpgradePopup()}
+      
+      {/* Hindi Keyboard */}
+      {shouldShowHindiKeyboard() && (
+        <HindiKeyboard
+          input={query}
+          onInputChange={handleHindiKeyboardChange}
+          isVisible={isHindiKeyboardVisible}
+          onClose={closeHindiKeyboard}
+        />
+      )}
     </div>
     
   );
