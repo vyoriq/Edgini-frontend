@@ -22,7 +22,9 @@ export default function LearnPage() {
   const [subscriptionFetched, setSubscriptionFetched] = useState(false); // Prevent duplicate API calls
   const [isUserDropdownOpen, setIsUserDropdownOpen] = useState(false);
   const [isHindiKeyboardVisible, setIsHindiKeyboardVisible] = useState(false);
+  const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
   const dropdownRef = useRef(null);
+  const sidebarRef = useRef(null);
   const { t, i18n } = useTranslation();
   const navigate = useNavigate();
 
@@ -75,10 +77,13 @@ export default function LearnPage() {
   }, [queryUsage]);
 
   useEffect(() => {
-    // Close dropdown when clicking outside
+    // Close dropdown and sidebar when clicking outside
     const handleClickOutside = (event) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
         setIsUserDropdownOpen(false);
+      }
+      if (sidebarRef.current && !sidebarRef.current.contains(event.target) && !event.target.closest('.hamburger-menu')) {
+        setIsMobileSidebarOpen(false);
       }
     };
 
@@ -396,6 +401,13 @@ const renderAIContent = (content) => (
   };
 
   /**
+   * Toggles mobile sidebar visibility
+   */
+  const toggleMobileSidebar = () => {
+    setIsMobileSidebarOpen(!isMobileSidebarOpen);
+  };
+
+  /**
    * Gets user display name or email
    */
   const getUserDisplayName = () => {
@@ -447,18 +459,31 @@ const renderAIContent = (content) => (
 
   return (
     <div className="flex min-h-screen">
-      <aside className="w-64 bg-gray-100 p-4 border-r overflow-y-auto flex flex-col">
+      {/* Mobile Sidebar Overlay */}
+      {isMobileSidebarOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden" onClick={() => setIsMobileSidebarOpen(false)} />
+      )}
+      
+      {/* Sidebar */}
+      <aside 
+        ref={sidebarRef}
+        className={`
+          fixed lg:static lg:translate-x-0 transition-transform duration-300 ease-in-out
+          w-64 sm:w-72 lg:w-64 bg-gray-100 border-r overflow-y-auto flex flex-col z-50
+          h-full lg:h-auto p-3 sm:p-4
+          ${isMobileSidebarOpen ? 'translate-x-0' : '-translate-x-full'}
+        `}
+      >
         <div>
-          <div className="mb-4 flex justify-center">
+          <div className="mb-3 sm:mb-4 flex justify-center">
             <img src="assets/edgini-logo.png" alt="EdGini Logo" 
-            // className="h-10 w-auto" 
-            className="mx-auto h-14 my-4"
+            className="mx-auto h-10 sm:h-12 lg:h-14 my-2 sm:my-4"
             />
           </div>
-          <h3 className="font-bold text-lg mb-2">🎓 {t('gradeLevel') || "Grade/Level:"} </h3>
-          <p className="text-base text-gray-700 mb-2">{t(`grades.${userProfile?.gradeLevel}`) || 'N/A'}</p>
-          <h3 className="font-bold text-lg mb-2">🎯 {t('goal') || "Goal:"} </h3>
-          <p className="text-base text-gray-700 mb-4">{t(userProfile?.goal) || 'N/A'}</p>
+          <h3 className="font-bold text-base sm:text-lg mb-2">🎓 {t('gradeLevel') || "Grade/Level:"} </h3>
+          <p className="text-sm sm:text-base text-gray-700 mb-2">{t(`grades.${userProfile?.gradeLevel}`) || 'N/A'}</p>
+          <h3 className="font-bold text-base sm:text-lg mb-2">🎯 {t('goal') || "Goal:"} </h3>
+          <p className="text-sm sm:text-base text-gray-700 mb-4">{t(userProfile?.goal) || 'N/A'}</p>
           
           {/* Subscription Badge */}
           {renderSubscriptionBadge()}
@@ -466,119 +491,133 @@ const renderAIContent = (content) => (
           {/* Query Usage Display */}
           {/* {renderQueryUsage()} */}
         </div>
-        <div className="mt-auto text-center text-xs text-gray-500 pt-4">
+        <div className="mt-auto text-center text-xs sm:text-sm text-gray-500 pt-4">
           <p>🌍 {t('educationTagline') || "Education for Everyone, Everywhere"}</p>
           <p>🚀 {t('futureTagline') || "Let's Build Tomorrow, Today"}</p>
         </div>
       </aside>
 
-      <main className="flex-1 p-6 pt-16 flex flex-col bg-white relative">
-        <div className="absolute top-4 right-6 flex items-center space-x-4">
-          <div className="text-lg text-gray-800 font-semibold">
-            🙏 {t('greeting')}, {username || email || t('learner')}
-          </div>
+      <main className="flex-1 lg:ml-0 p-3 sm:p-4 lg:p-6 pt-12 sm:pt-14 lg:pt-16 flex flex-col bg-white relative">
+        {/* Header with hamburger menu and user info */}
+        <div className="absolute top-2 sm:top-3 lg:top-4 left-3 sm:left-4 lg:left-6 right-3 sm:right-4 lg:right-6 flex items-center justify-between lg:justify-end">
+          {/* Hamburger Menu - Mobile Only */}
+          <button
+            onClick={toggleMobileSidebar}
+            className="lg:hidden hamburger-menu p-2 rounded-md text-gray-600 hover:text-gray-900 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            aria-label="Toggle menu"
+          >
+            <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
+          </button>
           
-          {/* User Profile Dropdown */}
-          <div className="relative" ref={dropdownRef}>
-            <button
-              onClick={toggleUserDropdown}
-              className="flex items-center space-x-2 text-gray-700 hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 rounded-full p-1"
-            >
-              {/* User Avatar */}
-              <div className="w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center text-sm font-medium">
-                {getUserInitials()}
-              </div>
-              
-              {/* User Name */}
-              <span className="text-sm font-medium truncate max-w-32">
-                {getUserDisplayName()}
-              </span>
-              
-              {/* Dropdown Arrow */}
-              <svg 
-                className={`w-4 h-4 transition-transform duration-200 ${
-                  isUserDropdownOpen ? 'rotate-180' : ''
-                }`} 
-                fill="none" 
-                stroke="currentColor" 
-                viewBox="0 0 24 24"
+          <div className="flex items-center space-x-2 sm:space-x-4">
+            <div className="text-sm sm:text-base lg:text-lg text-gray-800 font-semibold hidden sm:block">
+              🙏 {t('greeting')}, {username || email || t('learner')}
+            </div>
+          
+            {/* User Profile Dropdown */}
+            <div className="relative" ref={dropdownRef}>
+              <button
+                onClick={toggleUserDropdown}
+                className="flex items-center space-x-1 sm:space-x-2 text-gray-700 hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 rounded-full p-1"
               >
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
-              </svg>
-            </button>
+                {/* User Avatar */}
+                <div className="w-7 h-7 sm:w-8 sm:h-8 bg-blue-600 text-white rounded-full flex items-center justify-center text-xs sm:text-sm font-medium">
+                  {getUserInitials()}
+                </div>
+                
+                {/* User Name */}
+                <span className="text-xs sm:text-sm font-medium truncate max-w-20 sm:max-w-32 hidden sm:inline">
+                  {getUserDisplayName()}
+                </span>
+              
+                {/* Dropdown Arrow */}
+                <svg 
+                  className={`w-3 h-3 sm:w-4 sm:h-4 transition-transform duration-200 ${
+                    isUserDropdownOpen ? 'rotate-180' : ''
+                  }`} 
+                  fill="none" 
+                  stroke="currentColor" 
+                  viewBox="0 0 24 24"
+                >
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
+                </svg>
+              </button>
 
-            {/* Dropdown Menu */}
-            {isUserDropdownOpen && (
-              <div className="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none z-50">
-                <div className="py-1">
-                  {/* User Info Section */}
-                  <div className="px-4 py-3 border-b border-gray-100">
-                    <p className="text-sm font-medium text-gray-900 truncate">
-                      {getUserDisplayName()}
-                    </p>
-                    {userProfile?.email && (
-                      <p className="text-sm text-gray-500 truncate">
-                        {userProfile.email}
+              {/* Dropdown Menu */}
+              {isUserDropdownOpen && (
+                <div className="absolute right-0 mt-2 w-48 sm:w-56 bg-white rounded-lg shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none z-50">
+                  <div className="py-1">
+                    {/* User Info Section */}
+                    <div className="px-3 sm:px-4 py-2 sm:py-3 border-b border-gray-100">
+                      <p className="text-xs sm:text-sm font-medium text-gray-900 truncate">
+                        {getUserDisplayName()}
                       </p>
-                    )}
-                  </div>
+                      {userProfile?.email && (
+                        <p className="text-xs sm:text-sm text-gray-500 truncate">
+                          {userProfile.email}
+                        </p>
+                      )}
+                    </div>
 
-                  {/* Menu Items */}
-                  <button
-                    onClick={handlePricingClick}
-                    className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors duration-200"
-                  >
-                    <svg className="w-4 h-4 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
-                    </svg>
-                    {t('pricing')}
-                  </button>
-
-                  <button
-                    onClick={handleOrderHistory}
-                    className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors duration-200"
-                  >
-                    <svg className="w-4 h-4 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                    </svg>
-                    {t('orderHistory')}
-                  </button>
-
-
-                  <div className="border-t border-gray-100">
+                    {/* Menu Items */}
                     <button
-                      onClick={handleLogout}
-                      className="flex items-center w-full px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors duration-200"
+                      onClick={handlePricingClick}
+                      className="flex items-center w-full px-3 sm:px-4 py-2 text-xs sm:text-sm text-gray-700 hover:bg-gray-100 transition-colors duration-200"
                     >
-                      <svg className="w-4 h-4 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                      <svg className="w-3 h-3 sm:w-4 sm:h-4 mr-2 sm:mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
                       </svg>
-                      {t('logout')}
+                      {t('pricing')}
                     </button>
+
+                    <button
+                      onClick={handleOrderHistory}
+                      className="flex items-center w-full px-3 sm:px-4 py-2 text-xs sm:text-sm text-gray-700 hover:bg-gray-100 transition-colors duration-200"
+                    >
+                      <svg className="w-3 h-3 sm:w-4 sm:h-4 mr-2 sm:mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                      </svg>
+                      {t('orderHistory')}
+                    </button>
+
+
+                    <div className="border-t border-gray-100">
+                      <button
+                        onClick={handleLogout}
+                        className="flex items-center w-full px-3 sm:px-4 py-2 text-xs sm:text-sm text-red-600 hover:bg-red-50 transition-colors duration-200"
+                      >
+                        <svg className="w-3 h-3 sm:w-4 sm:h-4 mr-2 sm:mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                        </svg>
+                        {t('logout')}
+                      </button>
+                    </div>
                   </div>
                 </div>
-              </div>
-            )}
+              )}
+            </div>
           </div>
         </div>
 
-        <div className="flex-1 overflow-y-auto space-y-4 mb-4">
+        <div className="flex-1 overflow-y-auto space-y-2 sm:space-y-4 mb-3 sm:mb-4">
           {messages.map((msg, idx) => (
-            <div key={idx} className={`p-3 rounded shadow-md mb-2 ${msg.type === 'user' ? 'bg-blue-100 text-right' : 'bg-[#0a2b75] text-white text-left'}`}>
+            <div key={idx} className={`p-2 sm:p-3 rounded shadow-md mb-2 ${msg.type === 'user' ? 'bg-blue-100 text-right' : 'bg-[#0a2b75] text-white text-left'}`}>
               {msg.type === 'ai' ? renderAIContent(msg.content) : msg.content}
             </div>
           ))}
-          {loading && <div className="text-sm text-gray-500">🧠 {t("edginiThinking")}</div>}
+          {loading && <div className="text-xs sm:text-sm text-gray-500">🧠 {t("edginiThinking")}</div>}
         </div>
 
-        <form onSubmit={handleSubmit} className="flex items-center gap-2">
+        <form onSubmit={handleSubmit} className="flex items-center gap-1 sm:gap-2">
           <div className="flex-1 relative">
             <input 
               type="text" 
               value={query} 
               onChange={(e) => setQuery(e.target.value)} 
               placeholder={t("askEdgini") || "Ask EdGini anything..."}
-              className="w-full p-2 border rounded shadow font-semibold text-blue-900 placeholder-blue-900" 
+              className="w-full p-2 sm:p-3 border rounded shadow font-semibold text-blue-900 placeholder-blue-900 text-sm sm:text-base" 
               required 
             />
             {shouldShowHindiKeyboard() && (
@@ -589,14 +628,14 @@ const renderAIContent = (content) => (
                 title="Toggle Hindi Keyboard"
                 aria-label="Toggle Hindi keyboard"
               >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
                 </svg>
                 <span className="text-xs font-bold">हि</span>
               </button>
             )}
           </div>
-          <button type="submit" className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">{t("send") || "Send"}</button>
+          <button type="submit" className="bg-blue-600 text-white px-3 sm:px-4 py-2 sm:py-3 rounded hover:bg-blue-700 text-sm sm:text-base min-w-[60px] sm:min-w-[80px]">{t("send") || "Send"}</button>
         </form>
       </main>
       
