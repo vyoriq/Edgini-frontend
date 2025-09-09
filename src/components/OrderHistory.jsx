@@ -128,19 +128,21 @@ export default function OrderHistory() {
   return (
     <div className="min-h-screen bg-gray-50">
       
-      <div className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
-        {/* Header with Logo */}
-        <div className="mb-8 flex items-center justify-between">
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900">{t('orderHistory')}</h1>
-            <p className="mt-2 text-gray-600">{t('viewManageOrders')}</p>
-          </div>
+      <div className="max-w-7xl mx-auto py-4 sm:py-6 px-4 sm:px-6 lg:px-8">
+        {/* Logo at the top */}
+        <div className="mb-4 sm:mb-6 flex justify-center">
           <img 
             src="/assets/edgini-logo.png" 
             alt="EdGini" 
-            className="h-12 w-auto cursor-pointer hover:opacity-80 transition-opacity"
+            className="h-10 sm:h-12 md:h-14 lg:h-16 w-auto cursor-pointer hover:opacity-80 transition-opacity"
             onClick={() => navigate('/learn')}
           />
+        </div>
+
+        {/* Order History Header below logo */}
+        <div className="mb-6 sm:mb-8 text-center">
+          <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold text-gray-900">{t('orderHistory')}</h1>
+          <p className="mt-1 sm:mt-2 text-sm sm:text-base lg:text-lg text-gray-600">{t('viewManageOrders')}</p>
         </div>
 
 
@@ -158,11 +160,11 @@ export default function OrderHistory() {
             <svg className="w-12 h-12 text-red-600 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L5.082 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
             </svg>
-            <h3 className="text-lg font-medium text-red-800 mb-2">{t('errorLoadingOrders')}</h3>
+            <h3 className="text-base sm:text-lg lg:text-xl font-medium text-red-800 mb-2">{t('errorLoadingOrders')}</h3>
             <p className="text-red-600 mb-4">{error}</p>
             <button
               onClick={fetchOrderHistory}
-              className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg font-medium transition-colors"
+              className="bg-red-600 hover:bg-red-700 text-white px-6 py-3 lg:px-8 lg:py-4 rounded-lg font-medium transition-colors"
             >
               {t('retry')}
             </button>
@@ -175,7 +177,7 @@ export default function OrderHistory() {
             <svg className="w-16 h-16 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
             </svg>
-            <h3 className="text-lg font-medium text-gray-900 mb-2">{t('noOrdersFound')}</h3>
+            <h3 className="text-base sm:text-lg lg:text-xl font-medium text-gray-900 mb-2">{t('noOrdersFound')}</h3>
             <p className="text-gray-600 mb-4">{t('noOrdersMessage')}</p>
             <button
               onClick={() => navigate('/subscription')}
@@ -193,14 +195,14 @@ export default function OrderHistory() {
               {orders.map((order, index) => (
                 <div 
                   key={order.order_info?.order_id || index} 
-                  className="p-6 hover:bg-gray-100 transition-colors cursor-pointer"
+                  className="p-4 sm:p-6 lg:p-8 hover:bg-gray-100 transition-colors cursor-pointer"
                   onClick={() => navigate(`/order-details/${order.order_info?.order_id}`)}
                 >
                   <div className="flex items-center justify-between">
                     <div className="flex-1">
                       <div className="flex items-center justify-between mb-2">
                         <div className="flex items-center space-x-4">
-                          <h3 className="text-lg font-semibold text-gray-900">
+                          <h3 className="text-base sm:text-lg lg:text-xl font-semibold text-gray-900">
                             {getPlanName(order.subscription_info?.tier || order.metadata?.notes?.type?.split(' ')[0])}
                           </h3>
                           <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${getStatusBadge(order)}`}>
@@ -208,7 +210,7 @@ export default function OrderHistory() {
                           </span>
                         </div>
                         <div className="text-right">
-                          <p className="text-lg font-semibold text-gray-900">
+                          <p className="text-lg sm:text-xl lg:text-2xl font-semibold text-gray-900">
                             {formatAmount(order.order_info?.amount)}
                           </p>
                           <p className="text-sm text-gray-500">
@@ -217,7 +219,7 @@ export default function OrderHistory() {
                         </div>
                       </div>
 
-                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm text-gray-600">
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-3 sm:gap-4 lg:gap-6 text-xs sm:text-sm lg:text-base text-gray-600">
                         <div>
                           <span className="font-medium">{t('orderID')}:</span>
                           <p className="font-mono mt-1">{order.order_info?.order_id || t('na')}</p>
