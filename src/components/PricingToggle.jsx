@@ -16,11 +16,11 @@ export default function PricingToggle({ billingPeriod, onToggle }) {
   };
 
   return (
-    <div className="flex items-center justify-center mb-8">
-      <div className="flex items-center gap-4">
+    <div className="flex items-center">
+      <div className="flex items-center gap-2">
         {/* Monthly Label */}
         <span 
-          className={`text-sm font-medium transition-colors duration-300 ${
+          className={`text-xs sm:text-sm font-medium transition-colors duration-300 ${
             billingPeriod === 'monthly' ? 'text-blue-600' : 'text-gray-600'
           }`}
         >
@@ -31,15 +31,15 @@ export default function PricingToggle({ billingPeriod, onToggle }) {
         <div className="relative">
           <button
             onClick={handleToggle}
-            className={`relative w-12 h-6 rounded-full transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
+            className={`relative w-10 h-5 rounded-full transition-all duration-300 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:ring-offset-1 ${
               billingPeriod === 'yearly' ? 'bg-blue-600' : 'bg-gray-300'
             } hover:shadow-md`}
             aria-label={t('toggleBillingPeriod')}
           >
             {/* Toggle Circle */}
             <div
-              className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow-md transition-transform duration-300 ease-in-out ${
-                billingPeriod === 'yearly' ? 'transform translate-x-6' : 'transform translate-x-0'
+              className={`absolute top-0.5 left-0.5 w-4 h-4 bg-white rounded-full shadow-md transition-transform duration-300 ease-in-out ${
+                billingPeriod === 'yearly' ? 'transform translate-x-5' : 'transform translate-x-0'
               }`}
             />
           </button>
@@ -47,7 +47,7 @@ export default function PricingToggle({ billingPeriod, onToggle }) {
 
         {/* Yearly Label */}
         <span 
-          className={`text-sm font-medium transition-colors duration-300 ${
+          className={`text-xs sm:text-sm font-medium transition-colors duration-300 ${
             billingPeriod === 'yearly' ? 'text-blue-600' : 'text-gray-600'
           }`}
         >
@@ -57,9 +57,9 @@ export default function PricingToggle({ billingPeriod, onToggle }) {
         {/* Savings Badge - Only show for yearly */}
         {billingPeriod === 'yearly' && (
           <div className="transition-all duration-300 ease-in-out animate-fadeIn">
-            <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800 border border-blue-200">
+            {/* <span className="inline-flex items-center px-1.5 py-0.5 rounded-full text-xs sm:text-sm font-medium bg-blue-100 text-blue-800 border border-blue-200">
               Save 16.5%
-            </span>
+            </span> */}
           </div>
         )}
       </div>

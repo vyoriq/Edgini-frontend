@@ -139,8 +139,42 @@ src/components/
 - [x] Payment flow updated to work with both billing options
 - [x] Code follows project conventions and security best practices
 
-## Files Modified:
+## Final Update - Two-Section Layout:
+
+### Additional Changes Made:
+- [x] **RESTRUCTURED**: Subscription page now has two distinct sections
+- [x] **AVAILABLE PLANS**: Freemium and Premium Lite in dedicated section
+- [x] **UPCOMING PLANS**: New section with early bird access card
+- [x] **SPLIT CARD DESIGN**: Premium Pro and Enterprise features in one card
+- [x] **EARLY BIRD BUTTON**: Payment button for early access (25% discount)
+
+### Final Layout Structure:
+```
+Subscription Page:
+├── Header & Logo
+├── "Choose Your Plan" Title
+└── Side-by-Side Layout (2-column grid)
+    ├── Left Column: Available Plans
+    │   ├── "Available Plans" heading
+    │   ├── Freemium Card
+    │   └── Premium Lite Card (with toggle)
+    └── Right Column: Upcoming Plans
+        ├── "Upcoming Plans" heading
+        └── Combined Card
+            ├── Premium Pro Features (left)
+            ├── Enterprise Features (right)
+            └── Early Bird Access Button (bottom)
+```
+
+### Layout Update:
+- [x] **REPOSITIONED**: Upcoming plans now appear on the right side of available plans
+- [x] **RESPONSIVE**: Uses CSS Grid (lg:grid-cols-2) that stacks on mobile
+- [x] **ALIGNED**: Both sections aligned at top with proper spacing
+- [x] **VERTICAL CARDS**: Available plans now stack vertically in left column
+
+## Files Modified/Created:
 1. **CREATED**: `src/components/PricingToggle.jsx` - Toggle component with animations
-2. **MODIFIED**: `src/components/SubscriptionPage.jsx` - Integrated toggle and pricing logic
-3. **MODIFIED**: `src/components/PlanCard.jsx` - Updated for billing periods
-4. **MODIFIED**: `public/locales/en/translation.json` - Added translation keys
+2. **CREATED**: `src/components/UpcomingPlanCard.jsx` - Split card for upcoming plans
+3. **MODIFIED**: `src/components/SubscriptionPage.jsx` - Two-section layout + toggle integration  
+4. **MODIFIED**: `src/components/PlanCard.jsx` - Updated for billing periods
+5. **MODIFIED**: `public/locales/en/translation.json` - Added all translation keys

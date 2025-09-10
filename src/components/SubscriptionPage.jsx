@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import authenticatedFetch from '../utils/apiClient';
 import PlanCard from "./PlanCard";
 import PricingToggle from "./PricingToggle";
+import UpcomingPlanCard from "./UpcomingPlanCard";
 
 const plans = [
   {
@@ -127,7 +128,7 @@ export default function SubscriptionPage() {
 
   const visiblePlans = getVisiblePlans();
   return (
-    <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-gray-50 py-6 px-4 sm:px-6 lg:px-8">
       <div className="flex justify-center mb-4">
           <img 
             src="assets/edgini-logo.png" 
@@ -136,21 +137,49 @@ export default function SubscriptionPage() {
             onClick={() => navigate('/learn')}
           />
         </div>
-      <h2 className="text-3xl font-bold text-center mb-10 text-gray-800">
+      <h2 className="text-2xl sm:text-2xl lg:text-3xl font-bold text-center mb-8 sm:mb-12 text-gray-800">
         {t('choosePlan')}
       </h2>
       
-      <div className="flex flex-wrap gap-6 justify-center">
-        {visiblePlans.map((plan, idx) => (
-          <PlanCard 
-            key={idx} 
-            plan={plan} 
-            isCurrent={currentUserTier === plan.tierKey}
-            isDisabled={currentUserTier === plan.tierKey}
-            billingPeriod={billingPeriod}
-            onBillingToggle={plan.tierKey === 'premium' ? setBillingPeriod : null}
-          />
-        ))}
+      {/* Side-by-side Layout */}
+      <div className="max-w-full mx-auto px-4">
+        <div className="grid lg:grid-cols-2 gap-8 items-stretch min-h-0">
+          
+          {/* Available Plans Section */}
+          <div className="flex flex-col">
+            <div className="text-center mb-6">
+              <h3 className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-800 mb-2">{t('availablePlans')}</h3>
+              <p className="text-sm sm:text-base text-gray-600">Choose from our current offerings</p>
+            </div>
+            
+            <div className="flex gap-3 flex-grow">
+              {visiblePlans.map((plan, idx) => (
+                <div key={idx} className="flex-1">
+                  <PlanCard 
+                    plan={plan} 
+                    isCurrent={currentUserTier === plan.tierKey}
+                    isDisabled={currentUserTier === plan.tierKey}
+                    billingPeriod={billingPeriod}
+                    onBillingToggle={plan.tierKey === 'premium' ? setBillingPeriod : null}
+                  />
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Upcoming Plans Section */}
+          <div className="flex flex-col">
+            <div className="text-center mb-6">
+              <h3 className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-800 mb-2">{t('upcomingPlans')}</h3>
+              <p className="text-sm sm:text-base text-gray-600">{t('upcomingPlansDescription')}</p>
+            </div>
+            
+            <div className="flex-grow">
+              <UpcomingPlanCard />
+            </div>
+          </div>
+          
+        </div>
       </div>
     </div>
   );

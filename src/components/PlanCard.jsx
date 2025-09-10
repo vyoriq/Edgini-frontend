@@ -174,56 +174,60 @@ export default function PlanCard({ plan, isCurrent, isDisabled = false, billingP
   };
   return (
   <div
-    className={`w-full sm:w-[48%] lg:w-[23%] max-w-[300px] rounded-2xl shadow-md p-6 border ${
+    className={`w-full rounded-2xl shadow-md p-4 border ${
       isCurrent ? "border-blue-600" : "border-gray-200"
-    } bg-white flex flex-col justify-between`}
+    } bg-white flex flex-col justify-between h-full`}
   >
     <div>
-      <h3 className="text-xl font-semibold text-gray-800">{t(plan.nameKey)}</h3>
-      
-      {/* Pricing Toggle - Only show for premium plan */}
-      {plan.tierKey === 'premium' && onBillingToggle && (
-        <div className="mt-3 mb-2">
-          <PricingToggle 
-            billingPeriod={billingPeriod} 
-            onToggle={onBillingToggle} 
-          />
+      {/* Title and Toggle Row for Premium Plan */}
+      {plan.tierKey === 'premium' && onBillingToggle ? (
+        <div className="flex items-center justify-between mb-2">
+          <h3 className="text-base sm:text-lg lg:text-xl font-semibold text-gray-800">{t(plan.nameKey)}</h3>
+          <div className="ml-4">
+            <PricingToggle 
+              billingPeriod={billingPeriod} 
+              onToggle={onBillingToggle} 
+            />
+          </div>
         </div>
+      ) : (
+        <h3 className="text-base sm:text-lg lg:text-xl font-semibold text-gray-800 mb-2">{t(plan.nameKey)}</h3>
       )}
-      <p className="text-3xl font-bold text-blue-700 mt-2">
+      <p className="text-lg sm:text-xl lg:text-2xl font-bold text-blue-700 mt-2">
         ₹{plan.price}
-        <span className="text-sm text-gray-500 font-normal"> 
+        <span className="text-xs sm:text-sm text-gray-500 font-normal"> 
           /{plan.billingPeriod === 'yearly' ? t('year') : t('month')}
         </span>
       </p>
       
       {/* Show monthly equivalent for yearly billing */}
       {plan.billingPeriod === 'yearly' && plan.price > 0 && (
-        <p className="text-sm text-gray-600 mt-1">
+        <p className="text-xs sm:text-sm text-gray-600 mt-1">
           ₹{Math.round(plan.price / 12)}/{t('month')} {t('billedYearly')}
         </p>
       )}
-      <p className="mt-2 text-sm text-gray-600">
+      <p className="mt-2 text-xs sm:text-sm text-gray-600">
         {plan.limitKey === 'unlimited' ? t('unlimited') : plan.limitKey}
       </p>
 
-      <ul className="mt-4 space-y-2 text-sm text-gray-700">
+      <ul className="mt-2 space-y-1 text-xs sm:text-sm text-gray-700 flex-grow">
         {plan.featureKeys.map((featureKey, i) => (
           <li key={i} className="flex items-start gap-2">
-            <span className="text-green-500 font-bold">✓</span> {t(featureKey)}
+            <span className="text-green-500 font-bold text-xs sm:text-sm">✓</span> 
+            <span className="leading-tight">{t(featureKey)}</span>
           </li>
         ))}
       </ul>
     </div>
 
-    <div className="mt-6">
+    <div className="mt-4">
       {paymentStatus && (
-        <div className="mb-2 text-sm text-blue-600 text-center">
+        <div className="mb-2 text-xs sm:text-sm text-blue-600 text-center">
           {paymentStatus}
         </div>
       )}
       <button
-        className={`w-full py-2 rounded-xl font-semibold transition ${
+        className={`w-full py-2 sm:py-3 rounded-lg font-semibold transition text-sm sm:text-base ${
           isCurrent || isSubscribing || isDisabled
             ? "bg-gray-300 text-gray-600 cursor-not-allowed"
             : "bg-blue-600 hover:bg-blue-700 text-white"
