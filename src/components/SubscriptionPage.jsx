@@ -3,36 +3,46 @@ import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import authenticatedFetch from '../utils/apiClient';
 import PlanCard from "./PlanCard";
+import PricingToggle from "./PricingToggle";
 
 const plans = [
   {
     nameKey: "freePlan",
     price: 0,
-    limitKey: "10 queries/day", // We'll translate this in the component
-    featureKeys: ["basicAIAccess", "communitySupport"],
+    // limitKey: "10 queries/day", // We'll translate this in the component
+    // featureKeys: ["basicAIAccess", "communitySupport"],
+    featureKeys: ["Guided Session", "Grade & Goal Aligned", "Clear & Structured Answers", "Profile-Based Personalization", "Daily Learning", "Always Available", "English Only"],
     tierKey: "free",
   },
   {
-    nameKey: "basicPlan",
-    price: 299,
-    limitKey: "25 queries/day",
-    featureKeys: ["aiAccess", "emailSupport"],
-    tierKey: "basic",
-  },
-  {
     nameKey: "premiumPlan",
-    price: 999,
-    limitKey: "100 queries/day",
-    featureKeys: ["priorityAIAccess", "chatHistory", "prioritySupport"],
+    monthlyPrice: 499,
+    yearlyPrice: 4999, // 16.5% discount
+    // limitKey: "100 queries/day",
+    featureKeys: ["Unlimited Access", "Personalized Tutoring", "Exam Prep & Practice", "Priority Access", "Grade & Goal Aligned", "Clear & Structured Answers", "Profile-Based Personalization", "Always Available", "English & Hindi"],
     tierKey: "premium",
   },
-  {
-    nameKey: "proPlan",
-    price: 1999,
-    limitKey: "unlimited",
-    featureKeys: ["priorityAIAccess", "chatHistory", "dedicated", "explanationQuizSupport"],
-    tierKey: "pro",
-  },
+  // {
+  //   nameKey: "basicPlan",
+  //   price: 299,
+  //   limitKey: "25 queries/day",
+  //   featureKeys: ["aiAccess", "emailSupport"],
+  //   tierKey: "basic",
+  // },
+  // {
+  //   nameKey: "premiumPlan",
+  //   price: 999,
+  //   limitKey: "100 queries/day",
+  //   featureKeys: ["priorityAIAccess", "chatHistory", "prioritySupport"],
+  //   tierKey: "premium",
+  // },
+  // {
+  //   nameKey: "proPlan",
+  //   price: 1999,
+  //   limitKey: "unlimited",
+  //   featureKeys: ["priorityAIAccess", "chatHistory", "dedicated", "explanationQuizSupport"],
+  //   tierKey: "pro",
+  // },
 ];
 
 export default function SubscriptionPage() {
@@ -41,6 +51,7 @@ export default function SubscriptionPage() {
   const [currentUserTier, setCurrentUserTier] = useState(null);
   const [subscriptionData, setSubscriptionData] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [billingPeriod, setBillingPeriod] = useState('monthly');
 
   useEffect(() => {
     fetchSubscriptionDetails();
@@ -82,16 +93,25 @@ export default function SubscriptionPage() {
   };
 
   /**
-   * Filters plans based on subscription status
+   * Filters plans based on subscription status and adds current pricing
    * Hides free plan if user has an active subscription
    */
   const getVisiblePlans = () => {
-    if (!subscriptionData || currentUserTier === 'free') {
-      return plans; // Show all plans including free
-    }
+    const filteredPlans = !subscriptionData || currentUserTier === 'free' 
+      ? plans // Show all plans including free
+      : plans.filter(plan => plan.tierKey !== 'free'); // Hide free plan if has subscription
     
-    // If user has active subscription, hide free plan
-    return plans.filter(plan => plan.tierKey !== 'free');
+    // Add current price based on billing period for premium plan
+    return filteredPlans.map(plan => {
+      if (plan.tierKey === 'premium') {
+        return {
+          ...plan,
+          price: billingPeriod === 'yearly' ? plan.yearlyPrice : plan.monthlyPrice,
+          billingPeriod
+        };
+      }
+      return { ...plan, price: plan.price || 0 }; // Keep existing price for free plan
+    });
   };
 
   if (loading) {
@@ -119,6 +139,7 @@ export default function SubscriptionPage() {
       <h2 className="text-3xl font-bold text-center mb-10 text-gray-800">
         {t('choosePlan')}
       </h2>
+      
       <div className="flex flex-wrap gap-6 justify-center">
         {visiblePlans.map((plan, idx) => (
           <PlanCard 
@@ -126,6 +147,8 @@ export default function SubscriptionPage() {
             plan={plan} 
             isCurrent={currentUserTier === plan.tierKey}
             isDisabled={currentUserTier === plan.tierKey}
+            billingPeriod={billingPeriod}
+            onBillingToggle={plan.tierKey === 'premium' ? setBillingPeriod : null}
           />
         ))}
       </div>

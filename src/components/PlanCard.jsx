@@ -9,8 +9,9 @@ import {
   validateUserInfo,
   generateExternalRef
 } from '../services/razorpay';
+import PricingToggle from './PricingToggle';
 
-export default function PlanCard({ plan, isCurrent, isDisabled = false }) {
+export default function PlanCard({ plan, isCurrent, isDisabled = false, billingPeriod, onBillingToggle }) {
   const navigate = useNavigate();
   const { t } = useTranslation();
   const [isSubscribing, setIsSubscribing] = useState(false);
@@ -54,7 +55,8 @@ export default function PlanCard({ plan, isCurrent, isDisabled = false }) {
         tier: plan.tierKey,
         amount: plan.price,
         currency: 'INR',
-        user_id: userId
+        user_id: userId,
+        billing_period: plan.billingPeriod || 'monthly'
       };
 
       const orderDetails = await createRazorpayOrder(orderData);
@@ -178,10 +180,29 @@ export default function PlanCard({ plan, isCurrent, isDisabled = false }) {
   >
     <div>
       <h3 className="text-xl font-semibold text-gray-800">{t(plan.nameKey)}</h3>
+      
+      {/* Pricing Toggle - Only show for premium plan */}
+      {plan.tierKey === 'premium' && onBillingToggle && (
+        <div className="mt-3 mb-2">
+          <PricingToggle 
+            billingPeriod={billingPeriod} 
+            onToggle={onBillingToggle} 
+          />
+        </div>
+      )}
       <p className="text-3xl font-bold text-blue-700 mt-2">
         ₹{plan.price}
-        <span className="text-sm text-gray-500 font-normal"> /{t('month')}</span>
+        <span className="text-sm text-gray-500 font-normal"> 
+          /{plan.billingPeriod === 'yearly' ? t('year') : t('month')}
+        </span>
       </p>
+      
+      {/* Show monthly equivalent for yearly billing */}
+      {plan.billingPeriod === 'yearly' && plan.price > 0 && (
+        <p className="text-sm text-gray-600 mt-1">
+          ₹{Math.round(plan.price / 12)}/{t('month')} {t('billedYearly')}
+        </p>
+      )}
       <p className="mt-2 text-sm text-gray-600">
         {plan.limitKey === 'unlimited' ? t('unlimited') : plan.limitKey}
       </p>
