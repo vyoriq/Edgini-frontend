@@ -35,35 +35,35 @@ export default function UpcomingPlanCard() {
           <div className="space-y-2">
             <div className="flex items-start gap-2">
               <span className="text-purple-500 font-bold text-xs sm:text-sm mt-0.5">✓</span>
-              <span className="text-xs sm:text-sm text-gray-700 leading-tight">Parents Exam Prep</span>
+              <span className="text-xs sm:text-sm text-gray-700 leading-tight">{t('parentsExamPrep')}</span>
             </div>
             <div className="flex items-start gap-2">
               <span className="text-purple-500 font-bold text-xs sm:text-sm mt-0.5">✓</span>
-              <span className="text-xs sm:text-sm text-gray-700 leading-tight">Exam Prep & Practice</span>
+              <span className="text-xs sm:text-sm text-gray-700 leading-tight">{t('examPrepPractice')}</span>
             </div>
             <div className="flex items-start gap-2">
               <span className="text-purple-500 font-bold text-xs sm:text-sm mt-0.5">✓</span>
-              <span className="text-xs sm:text-sm text-gray-700 leading-tight">Text + Voice + Images</span>
+              <span className="text-xs sm:text-sm text-gray-700 leading-tight">{t('textVoiceImages')}</span>
             </div>
             <div className="flex items-start gap-2">
               <span className="text-purple-500 font-bold text-xs sm:text-sm mt-0.5">✓</span>
-              <span className="text-xs sm:text-sm text-gray-700 leading-tight">Full Progress + Personalization + Dashboard</span>
+              <span className="text-xs sm:text-sm text-gray-700 leading-tight">{t('fullProgressDashboard')}</span>
             </div>
             <div className="flex items-start gap-2">
               <span className="text-purple-500 font-bold text-xs sm:text-sm mt-0.5">✓</span>
-              <span className="text-xs sm:text-sm text-gray-700 leading-tight">Multi-language + Audio</span>
+              <span className="text-xs sm:text-sm text-gray-700 leading-tight">{t('multiLanguageAudio')}</span>
             </div>
             <div className="flex items-start gap-2">
               <span className="text-purple-500 font-bold text-xs sm:text-sm mt-0.5">✓</span>
-              <span className="text-xs sm:text-sm text-gray-700 leading-tight">Advanced Exam Support Video + Interactive Worksheets</span>
+              <span className="text-xs sm:text-sm text-gray-700 leading-tight">{t('advancedExamSupport')}</span>
             </div>
             <div className="flex items-start gap-2">
               <span className="text-purple-500 font-bold text-xs sm:text-sm mt-0.5">✓</span>
-              <span className="text-xs sm:text-sm text-gray-700 leading-tight">Upload Features of Answer Sheets to check the correctness and do revision</span>
+              <span className="text-xs sm:text-sm text-gray-700 leading-tight">{t('answerSheetUpload')}</span>
             </div>
             <div className="flex items-start gap-2">
               <span className="text-purple-500 font-bold text-xs sm:text-sm mt-0.5">✓</span>
-              <span className="text-xs sm:text-sm text-gray-700 leading-tight">More....</span>
+              <span className="text-xs sm:text-sm text-gray-700 leading-tight">{t('moreFeatures')}</span>
             </div>
           </div>
         </div>
@@ -80,35 +80,35 @@ export default function UpcomingPlanCard() {
           <div className="space-y-2">
             <div className="flex items-start gap-2">
               <span className="text-blue-500 font-bold text-xs sm:text-sm mt-0.5">✓</span>
-              <span className="text-xs sm:text-sm text-gray-700 leading-tight">Student + Teacher access</span>
+              <span className="text-xs sm:text-sm text-gray-700 leading-tight">{t('studentTeacherAccess')}</span>
             </div>
             <div className="flex items-start gap-2">
               <span className="text-blue-500 font-bold text-xs sm:text-sm mt-0.5">✓</span>
-              <span className="text-xs sm:text-sm text-gray-700 leading-tight">Admin Dashboard - (Parent/teacher view)</span>
+              <span className="text-xs sm:text-sm text-gray-700 leading-tight">{t('adminDashboard')}</span>
             </div>
             <div className="flex items-start gap-2">
               <span className="text-blue-500 font-bold text-xs sm:text-sm mt-0.5">✓</span>
-              <span className="text-xs sm:text-sm text-gray-700 leading-tight">Multi-language support</span>
+              <span className="text-xs sm:text-sm text-gray-700 leading-tight">{t('multiLanguageSupport')}</span>
             </div>
             <div className="flex items-start gap-2">
               <span className="text-blue-500 font-bold text-xs sm:text-sm mt-0.5">✓</span>
-              <span className="text-xs sm:text-sm text-gray-700 leading-tight">Class & individual progress reports</span>
+              <span className="text-xs sm:text-sm text-gray-700 leading-tight">{t('progressReports')}</span>
             </div>
             <div className="flex items-start gap-2">
               <span className="text-blue-500 font-bold text-xs sm:text-sm mt-0.5">✓</span>
-              <span className="text-xs sm:text-sm text-gray-700 leading-tight">Custom curriculum integration</span>
+              <span className="text-xs sm:text-sm text-gray-700 leading-tight">{t('customCurriculum')}</span>
             </div>
             <div className="flex items-start gap-2">
               <span className="text-blue-500 font-bold text-xs sm:text-sm mt-0.5">✓</span>
-              <span className="text-xs sm:text-sm text-gray-700 leading-tight">Competitive prep modules (Olympiad, NEET, JEE, UPSC)</span>
+              <span className="text-xs sm:text-sm text-gray-700 leading-tight">{t('competitiveModules')}</span>
             </div>
             <div className="flex items-start gap-2">
               <span className="text-blue-500 font-bold text-xs sm:text-sm mt-0.5">✓</span>
-              <span className="text-xs sm:text-sm text-gray-700 leading-tight">Bundle with institution's own classes</span>
+              <span className="text-xs sm:text-sm text-gray-700 leading-tight">{t('institutionBundle')}</span>
             </div>
             <div className="flex items-start gap-2">
               <span className="text-blue-500 font-bold text-xs sm:text-sm mt-0.5">✓</span>
-              <span className="text-xs sm:text-sm text-gray-700 leading-tight">More....</span>
+              <span className="text-xs sm:text-sm text-gray-700 leading-tight">{t('moreFeatures')}</span>
             </div>
           </div>
         </div>
@@ -119,7 +119,7 @@ export default function UpcomingPlanCard() {
         <div className="text-center">
           <div className="flex justify-center items-center mb-3">
             <span className="text-xl sm:text-2xl mr-2">🚀</span>
-            <h5 className="text-sm sm:text-base lg:text-lg font-semibold text-gray-800">Subscribe Now for Early Bird Offer with ₹1 and avail discount once this Plan Releases</h5>
+            <h5 className="text-sm sm:text-base lg:text-lg font-semibold text-gray-800">{t('earlyBirdOfferText')}</h5>
           </div>
           {/* <p className="text-xs sm:text-sm text-gray-600 mb-4 leading-tight">
             Subscribe Now for Early Bird Offer with ₹1 and avail discount once this Plan Releases

@@ -12,7 +12,7 @@ const plans = [
     price: 0,
     // limitKey: "10 queries/day", // We'll translate this in the component
     // featureKeys: ["basicAIAccess", "communitySupport"],
-    featureKeys: ["Guided Session", "Grade & Goal Aligned", "Clear & Structured Answers", "Profile-Based Personalization", "Daily Learning", "Always Available", "English Only"],
+    featureKeys: ["guidedSession", "gradeGoalAligned", "clearStructuredAnswers", "profileBasedPersonalization", "dailyLearning", "alwaysAvailable", "englishOnly"],
     tierKey: "free",
   },
   {
@@ -20,7 +20,7 @@ const plans = [
     monthlyPrice: 499,
     yearlyPrice: 4999, // 16.5% discount
     // limitKey: "100 queries/day",
-    featureKeys: ["Unlimited Access", "Personalized Tutoring", "Exam Prep & Practice", "Priority Access", "Grade & Goal Aligned", "Clear & Structured Answers", "Profile-Based Personalization", "Always Available", "English & Hindi"],
+    featureKeys: ["unlimitedAccess", "personalizedTutoring", "examPrepPractice", "priorityAccess", "gradeGoalAligned", "clearStructuredAnswers", "profileBasedPersonalization", "alwaysAvailable", "englishHindi"],
     tierKey: "premium",
   },
   // {
@@ -149,7 +149,7 @@ export default function SubscriptionPage() {
           <div className="flex flex-col">
             <div className="text-center mb-6">
               <h3 className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-800 mb-2">{t('availablePlans')}</h3>
-              <p className="text-sm sm:text-base text-gray-600">Choose from our current offerings</p>
+              <p className="text-sm sm:text-base text-gray-600">{t('currentOfferings')}</p>
             </div>
             
             <div className="flex gap-3 flex-grow">
