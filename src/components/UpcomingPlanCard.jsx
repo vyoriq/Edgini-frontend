@@ -14,17 +14,17 @@ export default function UpcomingPlanCard() {
   };
 
   return (
-    <div className="w-full rounded-2xl shadow-lg border border-gray-200 bg-white overflow-hidden h-full flex flex-col">
+    <div className="w-full rounded-2xl shadow-lg border border-gray-200 bg-white overflow-hidden h-full flex flex-col min-h-[350px] sm:min-h-[400px]">
       {/* Header */}
-      <div className="bg-gradient-to-r from-purple-600 to-blue-600 p-4 sm:p-6 text-white">
-        <h3 className="text-lg sm:text-xl font-bold mb-2">{t('upcomingPlans')}</h3>
+      <div className="bg-gradient-to-r from-purple-600 to-blue-600 p-4 sm:p-5 lg:p-6 text-white">
+        <h3 className="text-lg sm:text-xl font-bold mb-2 text-center sm:text-left">{t('upcomingPlans')}</h3>
         {/* <p className="text-purple-100 text-sm sm:text-base">{t('upcomingPlansDescription')}</p> */}
       </div>
 
       {/* Split Content */}
-      <div className="grid md:grid-cols-2 gap-0 flex-grow">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-0 flex-grow">
         {/* Left Side - Premium Pro Features */}
-        <div className="p-3 sm:p-4 border-r border-gray-200">
+        <div className="p-3 sm:p-4 md:border-r border-gray-200 border-b md:border-b-0">
           <div className="flex items-center mb-3">
             <div className="w-2 h-2 sm:w-3 sm:h-3 bg-purple-600 rounded-full mr-2"></div>
             <h4 className="text-sm sm:text-base font-semibold text-gray-800">{t('premiumPlusPlan')}</h4>
@@ -34,36 +34,36 @@ export default function UpcomingPlanCard() {
           </div>
           <div className="space-y-2">
             <div className="flex items-start gap-2">
-              <span className="text-purple-500 font-bold text-xs sm:text-sm mt-0.5">✓</span>
-              <span className="text-xs sm:text-sm text-gray-700 leading-tight">{t('parentsExamPrep')}</span>
+              <span className="text-purple-500 font-bold text-sm sm:text-sm mt-0.5 flex-shrink-0">✓</span>
+              <span className="text-sm sm:text-sm text-gray-700 leading-tight">{t('parentsExamPrep')}</span>
             </div>
             <div className="flex items-start gap-2">
-              <span className="text-purple-500 font-bold text-xs sm:text-sm mt-0.5">✓</span>
-              <span className="text-xs sm:text-sm text-gray-700 leading-tight">{t('examPrepPractice')}</span>
+              <span className="text-purple-500 font-bold text-sm sm:text-sm mt-0.5 flex-shrink-0">✓</span>
+              <span className="text-sm sm:text-sm text-gray-700 leading-tight">{t('examPrepPractice')}</span>
             </div>
             <div className="flex items-start gap-2">
-              <span className="text-purple-500 font-bold text-xs sm:text-sm mt-0.5">✓</span>
-              <span className="text-xs sm:text-sm text-gray-700 leading-tight">{t('textVoiceImages')}</span>
+              <span className="text-purple-500 font-bold text-sm sm:text-sm mt-0.5 flex-shrink-0">✓</span>
+              <span className="text-sm sm:text-sm text-gray-700 leading-tight">{t('textVoiceImages')}</span>
             </div>
             <div className="flex items-start gap-2">
-              <span className="text-purple-500 font-bold text-xs sm:text-sm mt-0.5">✓</span>
-              <span className="text-xs sm:text-sm text-gray-700 leading-tight">{t('fullProgressDashboard')}</span>
+              <span className="text-purple-500 font-bold text-sm sm:text-sm mt-0.5 flex-shrink-0">✓</span>
+              <span className="text-sm sm:text-sm text-gray-700 leading-tight">{t('fullProgressDashboard')}</span>
             </div>
             <div className="flex items-start gap-2">
-              <span className="text-purple-500 font-bold text-xs sm:text-sm mt-0.5">✓</span>
-              <span className="text-xs sm:text-sm text-gray-700 leading-tight">{t('multiLanguageAudio')}</span>
+              <span className="text-purple-500 font-bold text-sm sm:text-sm mt-0.5 flex-shrink-0">✓</span>
+              <span className="text-sm sm:text-sm text-gray-700 leading-tight">{t('multiLanguageAudio')}</span>
             </div>
             <div className="flex items-start gap-2">
-              <span className="text-purple-500 font-bold text-xs sm:text-sm mt-0.5">✓</span>
-              <span className="text-xs sm:text-sm text-gray-700 leading-tight">{t('advancedExamSupport')}</span>
+              <span className="text-purple-500 font-bold text-sm sm:text-sm mt-0.5 flex-shrink-0">✓</span>
+              <span className="text-sm sm:text-sm text-gray-700 leading-tight">{t('advancedExamSupport')}</span>
             </div>
             <div className="flex items-start gap-2">
-              <span className="text-purple-500 font-bold text-xs sm:text-sm mt-0.5">✓</span>
-              <span className="text-xs sm:text-sm text-gray-700 leading-tight">{t('answerSheetUpload')}</span>
+              <span className="text-purple-500 font-bold text-sm sm:text-sm mt-0.5 flex-shrink-0">✓</span>
+              <span className="text-sm sm:text-sm text-gray-700 leading-tight">{t('answerSheetUpload')}</span>
             </div>
             <div className="flex items-start gap-2">
-              <span className="text-purple-500 font-bold text-xs sm:text-sm mt-0.5">✓</span>
-              <span className="text-xs sm:text-sm text-gray-700 leading-tight">{t('moreFeatures')}</span>
+              <span className="text-purple-500 font-bold text-sm sm:text-sm mt-0.5 flex-shrink-0">✓</span>
+              <span className="text-sm sm:text-sm text-gray-700 leading-tight">{t('moreFeatures')}</span>
             </div>
           </div>
         </div>
@@ -79,54 +79,54 @@ export default function UpcomingPlanCard() {
           </div>
           <div className="space-y-2">
             <div className="flex items-start gap-2">
-              <span className="text-blue-500 font-bold text-xs sm:text-sm mt-0.5">✓</span>
-              <span className="text-xs sm:text-sm text-gray-700 leading-tight">{t('studentTeacherAccess')}</span>
+              <span className="text-blue-500 font-bold text-sm sm:text-sm mt-0.5 flex-shrink-0">✓</span>
+              <span className="text-sm sm:text-sm text-gray-700 leading-tight">{t('studentTeacherAccess')}</span>
             </div>
             <div className="flex items-start gap-2">
-              <span className="text-blue-500 font-bold text-xs sm:text-sm mt-0.5">✓</span>
-              <span className="text-xs sm:text-sm text-gray-700 leading-tight">{t('adminDashboard')}</span>
+              <span className="text-blue-500 font-bold text-sm sm:text-sm mt-0.5 flex-shrink-0">✓</span>
+              <span className="text-sm sm:text-sm text-gray-700 leading-tight">{t('adminDashboard')}</span>
             </div>
             <div className="flex items-start gap-2">
-              <span className="text-blue-500 font-bold text-xs sm:text-sm mt-0.5">✓</span>
-              <span className="text-xs sm:text-sm text-gray-700 leading-tight">{t('multiLanguageSupport')}</span>
+              <span className="text-blue-500 font-bold text-sm sm:text-sm mt-0.5 flex-shrink-0">✓</span>
+              <span className="text-sm sm:text-sm text-gray-700 leading-tight">{t('multiLanguageSupport')}</span>
             </div>
             <div className="flex items-start gap-2">
-              <span className="text-blue-500 font-bold text-xs sm:text-sm mt-0.5">✓</span>
-              <span className="text-xs sm:text-sm text-gray-700 leading-tight">{t('progressReports')}</span>
+              <span className="text-blue-500 font-bold text-sm sm:text-sm mt-0.5 flex-shrink-0">✓</span>
+              <span className="text-sm sm:text-sm text-gray-700 leading-tight">{t('progressReports')}</span>
             </div>
             <div className="flex items-start gap-2">
-              <span className="text-blue-500 font-bold text-xs sm:text-sm mt-0.5">✓</span>
-              <span className="text-xs sm:text-sm text-gray-700 leading-tight">{t('customCurriculum')}</span>
+              <span className="text-blue-500 font-bold text-sm sm:text-sm mt-0.5 flex-shrink-0">✓</span>
+              <span className="text-sm sm:text-sm text-gray-700 leading-tight">{t('customCurriculum')}</span>
             </div>
             <div className="flex items-start gap-2">
-              <span className="text-blue-500 font-bold text-xs sm:text-sm mt-0.5">✓</span>
-              <span className="text-xs sm:text-sm text-gray-700 leading-tight">{t('competitiveModules')}</span>
+              <span className="text-blue-500 font-bold text-sm sm:text-sm mt-0.5 flex-shrink-0">✓</span>
+              <span className="text-sm sm:text-sm text-gray-700 leading-tight">{t('competitiveModules')}</span>
             </div>
             <div className="flex items-start gap-2">
-              <span className="text-blue-500 font-bold text-xs sm:text-sm mt-0.5">✓</span>
-              <span className="text-xs sm:text-sm text-gray-700 leading-tight">{t('institutionBundle')}</span>
+              <span className="text-blue-500 font-bold text-sm sm:text-sm mt-0.5 flex-shrink-0">✓</span>
+              <span className="text-sm sm:text-sm text-gray-700 leading-tight">{t('institutionBundle')}</span>
             </div>
             <div className="flex items-start gap-2">
-              <span className="text-blue-500 font-bold text-xs sm:text-sm mt-0.5">✓</span>
-              <span className="text-xs sm:text-sm text-gray-700 leading-tight">{t('moreFeatures')}</span>
+              <span className="text-blue-500 font-bold text-sm sm:text-sm mt-0.5 flex-shrink-0">✓</span>
+              <span className="text-sm sm:text-sm text-gray-700 leading-tight">{t('moreFeatures')}</span>
             </div>
           </div>
         </div>
       </div>
 
       {/* Early Bird Access Section */}
-      <div className="p-4 sm:p-6 bg-gradient-to-r from-amber-50 to-orange-50 border-t border-gray-200 mt-auto">
+      <div className="p-4 sm:p-5 lg:p-6 bg-gradient-to-r from-amber-50 to-orange-50 border-t border-gray-200 mt-auto">
         <div className="text-center">
-          <div className="flex justify-center items-center mb-3">
-            <span className="text-xl sm:text-2xl mr-2">🚀</span>
-            <h5 className="text-sm sm:text-base lg:text-lg font-semibold text-gray-800">{t('earlyBirdOfferText')}</h5>
+          <div className="flex justify-center items-center mb-3 flex-wrap gap-2">
+            <span className="text-xl sm:text-2xl flex-shrink-0">🚀</span>
+            <h5 className="text-sm sm:text-base lg:text-lg font-semibold text-gray-800 text-center leading-tight">{t('earlyBirdOfferText')}</h5>
           </div>
           {/* <p className="text-xs sm:text-sm text-gray-600 mb-4 leading-tight">
             Subscribe Now for Early Bird Offer with ₹1 and avail discount once this Plan Releases
           </p> */}
           <button
             onClick={handleEarlyBirdAccess}
-            className="bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white font-semibold py-2 sm:py-3 px-4 sm:px-6 rounded-lg transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl text-sm sm:text-base"
+            className="bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white font-semibold py-3 sm:py-3 px-6 sm:px-6 rounded-lg transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl text-base sm:text-base w-full sm:w-auto"
           >
             {t('getEarlyAccess')}
           </button>

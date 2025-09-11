@@ -174,16 +174,16 @@ export default function PlanCard({ plan, isCurrent, isDisabled = false, billingP
   };
   return (
   <div
-    className={`w-full rounded-2xl shadow-md p-4 border ${
+    className={`w-full rounded-2xl shadow-md p-4 sm:p-5 lg:p-6 border ${
       isCurrent ? "border-blue-600" : "border-gray-200"
-    } bg-white flex flex-col justify-between h-full`}
+    } bg-white flex flex-col justify-between h-full min-h-[350px] sm:min-h-[400px]`}
   >
     <div>
       {/* Title and Toggle Row for Premium Plan */}
       {plan.tierKey === 'premium' && onBillingToggle ? (
-        <div className="flex items-center justify-between mb-2">
-          <h3 className="text-base sm:text-lg lg:text-xl font-semibold text-gray-800">{t(plan.nameKey)}</h3>
-          <div className="ml-4">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-3 gap-2 sm:gap-0">
+          <h3 className="text-lg sm:text-lg lg:text-xl font-semibold text-gray-800 text-center sm:text-left">{t(plan.nameKey)}</h3>
+          <div className="flex justify-center sm:justify-end sm:ml-4">
             <PricingToggle 
               billingPeriod={billingPeriod} 
               onToggle={onBillingToggle} 
@@ -191,43 +191,43 @@ export default function PlanCard({ plan, isCurrent, isDisabled = false, billingP
           </div>
         </div>
       ) : (
-        <h3 className="text-base sm:text-lg lg:text-xl font-semibold text-gray-800 mb-2">{t(plan.nameKey)}</h3>
+        <h3 className="text-lg sm:text-lg lg:text-xl font-semibold text-gray-800 mb-3 text-center sm:text-left">{t(plan.nameKey)}</h3>
       )}
-      <p className="text-lg sm:text-xl lg:text-2xl font-bold text-blue-700 mt-2">
+      <p className="text-xl sm:text-xl lg:text-2xl font-bold text-blue-700 mt-2 text-center sm:text-left">
         ₹{plan.price}
-        <span className="text-xs sm:text-sm text-gray-500 font-normal"> 
+        <span className="text-sm sm:text-sm text-gray-500 font-normal"> 
           /{plan.billingPeriod === 'yearly' ? t('year') : t('month')}
         </span>
       </p>
       
       {/* Show monthly equivalent for yearly billing */}
       {plan.billingPeriod === 'yearly' && plan.price > 0 && (
-        <p className="text-xs sm:text-sm text-gray-600 mt-1">
+        <p className="text-sm sm:text-sm text-gray-600 mt-1 text-center sm:text-left">
           ₹{Math.round(plan.price / 12)}/{t('month')} {t('billedYearly')}
         </p>
       )}
-      <p className="mt-2 text-xs sm:text-sm text-gray-600">
+      <p className="mt-2 text-sm sm:text-sm text-gray-600 text-center sm:text-left">
         {plan.limitKey === 'unlimited' ? t('unlimited') : plan.limitKey}
       </p>
 
-      <ul className="mt-2 space-y-1 text-xs sm:text-sm text-gray-700 flex-grow">
+      <ul className="mt-3 sm:mt-2 space-y-2 sm:space-y-1 text-sm sm:text-sm text-gray-700 flex-grow">
         {plan.featureKeys.map((featureKey, i) => (
-          <li key={i} className="flex items-start gap-2">
-            <span className="text-green-500 font-bold text-xs sm:text-sm">✓</span> 
-            <span className="leading-tight">{t(featureKey)}</span>
+          <li key={i} className="flex items-start gap-2 sm:gap-2">
+            <span className="text-green-500 font-bold text-sm sm:text-sm mt-0.5">✓</span> 
+            <span className="leading-tight text-sm sm:text-sm">{t(featureKey)}</span>
           </li>
         ))}
       </ul>
     </div>
 
-    <div className="mt-4">
+    <div className="mt-4 sm:mt-4">
       {paymentStatus && (
-        <div className="mb-2 text-xs sm:text-sm text-blue-600 text-center">
+        <div className="mb-3 sm:mb-2 text-sm sm:text-sm text-blue-600 text-center">
           {paymentStatus}
         </div>
       )}
       <button
-        className={`w-full py-2 sm:py-3 rounded-lg font-semibold transition text-sm sm:text-base ${
+        className={`w-full py-3 sm:py-3 rounded-lg font-semibold transition text-base sm:text-base ${
           isCurrent || isSubscribing || isDisabled
             ? "bg-gray-300 text-gray-600 cursor-not-allowed"
             : "bg-blue-600 hover:bg-blue-700 text-white"

@@ -128,33 +128,33 @@ export default function SubscriptionPage() {
 
   const visiblePlans = getVisiblePlans();
   return (
-    <div className="min-h-screen bg-gray-50 py-6 px-4 sm:px-6 lg:px-8">
-      <div className="flex justify-center mb-4">
+    <div className="min-h-screen bg-gray-50 py-4 sm:py-6 px-3 sm:px-4 lg:px-8">
+      <div className="flex justify-center mb-4 sm:mb-6">
           <img 
             src="assets/edgini-logo.png" 
             alt="EdGini" 
-            className="h-16 cursor-pointer hover:opacity-80 transition-opacity" 
+            className="h-12 sm:h-14 md:h-16 cursor-pointer hover:opacity-80 transition-opacity" 
             onClick={() => navigate('/learn')}
           />
         </div>
-      <h2 className="text-2xl sm:text-2xl lg:text-3xl font-bold text-center mb-8 sm:mb-12 text-gray-800">
+      <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-center mb-6 sm:mb-8 lg:mb-12 text-gray-800 px-2">
         {t('choosePlan')}
       </h2>
       
       {/* Side-by-side Layout */}
-      <div className="max-w-full mx-auto px-4">
-        <div className="grid lg:grid-cols-2 gap-8 items-stretch min-h-0">
+      <div className="max-w-7xl mx-auto px-2 sm:px-4">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8 items-stretch min-h-0">
           
           {/* Available Plans Section */}
           <div className="flex flex-col">
-            <div className="text-center mb-6">
-              <h3 className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-800 mb-2">{t('availablePlans')}</h3>
-              <p className="text-sm sm:text-base text-gray-600">{t('currentOfferings')}</p>
+            <div className="text-center mb-4 sm:mb-6">
+              <h3 className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-800 mb-2 sm:mb-3">{t('availablePlans')}</h3>
+              <p className="text-sm sm:text-base text-gray-600 px-2">{t('currentOfferings')}</p>
             </div>
             
-            <div className="flex gap-3 flex-grow">
+            <div className="flex flex-col sm:flex-row gap-4 sm:gap-3 flex-grow">
               {visiblePlans.map((plan, idx) => (
-                <div key={idx} className="flex-1">
+                <div key={idx} className="flex-1 w-full sm:w-auto">
                   <PlanCard 
                     plan={plan} 
                     isCurrent={currentUserTier === plan.tierKey}
@@ -169,9 +169,9 @@ export default function SubscriptionPage() {
 
           {/* Upcoming Plans Section */}
           <div className="flex flex-col">
-            <div className="text-center mb-6">
-              <h3 className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-800 mb-2">{t('upcomingPlans')}</h3>
-              <p className="text-sm sm:text-base text-gray-600">{t('upcomingPlansDescription')}</p>
+            <div className="text-center mb-4 sm:mb-6">
+              <h3 className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-800 mb-2 sm:mb-3">{t('upcomingPlans')}</h3>
+              <p className="text-sm sm:text-base text-gray-600 px-2">{t('upcomingPlansDescription')}</p>
             </div>
             
             <div className="flex-grow">
