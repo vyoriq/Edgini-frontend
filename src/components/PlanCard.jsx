@@ -174,16 +174,16 @@ export default function PlanCard({ plan, isCurrent, isDisabled = false, billingP
   };
   return (
   <div
-    className={`w-full rounded-2xl shadow-md p-4 sm:p-5 lg:p-6 border ${
+    className={`w-full max-w-full rounded-2xl shadow-md p-4 sm:p-5 lg:p-6 border ${
       isCurrent ? "border-blue-600" : "border-gray-200"
     } bg-white flex flex-col justify-between h-full min-h-[350px] sm:min-h-[400px]`}
   >
     <div>
       {/* Title and Toggle Row for Premium Plan */}
       {plan.tierKey === 'premium' && onBillingToggle ? (
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-3 gap-2 sm:gap-0">
-          <h3 className="text-lg sm:text-lg lg:text-xl font-semibold text-gray-800 text-center sm:text-left">{t(plan.nameKey)}</h3>
-          <div className="flex justify-center sm:justify-end sm:ml-4">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-3 gap-2 sm:gap-3">
+          <h3 className="text-base sm:text-lg font-semibold text-gray-800 text-center sm:text-left flex-shrink-0">{t(plan.nameKey)}</h3>
+          <div className="flex justify-center sm:justify-end flex-shrink-0">
             <PricingToggle 
               billingPeriod={billingPeriod} 
               onToggle={onBillingToggle} 
@@ -191,7 +191,7 @@ export default function PlanCard({ plan, isCurrent, isDisabled = false, billingP
           </div>
         </div>
       ) : (
-        <h3 className="text-lg sm:text-lg lg:text-xl font-semibold text-gray-800 mb-3 text-center sm:text-left">{t(plan.nameKey)}</h3>
+        <h3 className="text-base sm:text-lg font-semibold text-gray-800 mb-3 text-center sm:text-left">{t(plan.nameKey)}</h3>
       )}
       <p className="text-xl sm:text-xl lg:text-2xl font-bold text-blue-700 mt-2 text-center sm:text-left">
         ₹{plan.price}

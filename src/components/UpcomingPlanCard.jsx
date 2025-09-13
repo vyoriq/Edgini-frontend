@@ -236,9 +236,9 @@ export default function UpcomingPlanCard() {
             <span className="text-xl sm:text-2xl flex-shrink-0">🚀</span>
             <h5 className="text-sm sm:text-base lg:text-lg font-semibold text-gray-800 text-center leading-tight">{t('earlyBirdOfferText')}</h5>
           </div>
-          <p className="text-xs sm:text-sm text-gray-600 mb-4 leading-tight">
+          {/* <p className="text-xs sm:text-sm text-gray-600 mb-4 leading-tight">
             Subscribe for just ₹1 to get early access and special discounts
-          </p>
+          </p> */}
           
           {/* Payment Status Display */}
           {paymentStatus && (
@@ -258,9 +258,9 @@ export default function UpcomingPlanCard() {
           >
             {isProcessing ? (paymentStatus ? 'Processing...' : 'Please wait...') : t('getEarlyAccess')}
           </button>
-          <p className="text-xs sm:text-sm text-gray-500 mt-2">
+          {/* <p className="text-xs sm:text-sm text-gray-500 mt-2">
             Only ₹1 • Secure payment via Razorpay
-          </p>
+          </p> */}
         </div>
       </div>
     </div>

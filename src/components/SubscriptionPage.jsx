@@ -152,7 +152,7 @@ export default function SubscriptionPage() {
               <p className="text-sm sm:text-base text-gray-600 px-2">{t('currentOfferings')}</p>
             </div>
             
-            <div className="flex flex-col sm:flex-row gap-4 sm:gap-3 flex-grow">
+            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 flex-grow">
               {visiblePlans.map((plan, idx) => (
                 <div key={idx} className="flex-1 w-full sm:w-auto">
                   <PlanCard 
