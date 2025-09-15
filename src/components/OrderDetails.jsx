@@ -75,15 +75,24 @@ export default function OrderDetails() {
 
   /**
    * Determines if payment was successful based on order data
+   * Handles early bird access (₹1) differently since no subscription is created
    */
   const isPaymentSuccessful = () => {
     if (!orderData) return false;
-    
+
     // Check payment status from the nested structure
     const paymentStatus = orderData?.payment_info?.status;
+    const amount = orderData?.order_info?.amount;
+
+    // For early bird access (₹1), only check payment status since no subscription is created
+    if (amount === 1 || amount === 1.0) {
+      return paymentStatus === 'captured';
+    }
+
+    // For regular subscriptions, check both payment and subscription status
     const subscriptionStatus = orderData?.subscription_info?.status;
     const isActive = orderData?.subscription_info?.is_active;
-    
+
     return paymentStatus === 'captured' && subscriptionStatus === 'active' && isActive;
   };
 
@@ -194,9 +203,11 @@ export default function OrderDetails() {
           </h2>
 
           <p className="text-gray-600 mb-6">
-            {isSuccess 
-              ? `${t('yourPlan')} ${orderData?.subscription_info?.tier || ''} ${t('subscriptionActivated')}`
-              : orderData?.payment_info?.failure_reason 
+            {isSuccess
+              ? orderData?.order_info?.amount === 1 || orderData?.order_info?.amount === 1.0
+                ? 'Your early bird access has been activated! You\'ll get special discounts when premium features launch.'
+                : `${t('yourPlan')} ${orderData?.subscription_info?.tier || ''} ${t('subscriptionActivated')}`
+              : orderData?.payment_info?.failure_reason
                 ? `${t('paymentFailed')}: ${orderData.payment_info.failure_reason}`
                 : t('paymentFailedMessage')
             }
