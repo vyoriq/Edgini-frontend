@@ -1,6 +1,6 @@
 import { supabase } from '../lib/supabaseClient';
 
-const API_BASE_URL = 'http://localhost:8000';
+const API_BASE_URL = import.meta.env.VITE_APP_HOST;
 
 /**
  * Get current access token from Supabase

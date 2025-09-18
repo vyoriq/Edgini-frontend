@@ -262,7 +262,7 @@ export default function AuthPage() {
                 }}
                 className="flex-1 px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors"
               >
-                Close
+                Continue Free
               </button>
               <button
                 onClick={() => {
