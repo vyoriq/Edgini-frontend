@@ -33,15 +33,15 @@ export default function Homepage() {
         >
           <option value="en">English</option>
           <option value="hi">हिन्दी</option>
-          <option value="bn">বাংলা</option>
+          {/* <option value="bn">বাংলা</option>
           <option value="ar">العربية</option>
           <option value="es">Español</option>
-          <option value="kn">ಕನ್ನಡ</option>
+          <option value="kn">ಕನ್ನಡ</option> */}
         </select>
       </div>
 
       <img
-        src="/assets/edgini-logo.png"
+        src="/assets/edgini-white-text.png"
         alt="EdGini Logo"
         className="h-24 w-auto mb-4"
       />
