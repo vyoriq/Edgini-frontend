@@ -193,12 +193,29 @@ export default function PlanCard({ plan, isCurrent, isDisabled = false, billingP
       ) : (
         <h3 className="text-base sm:text-lg font-semibold text-gray-800 mb-3 text-center sm:text-left">{t(plan.nameKey)}</h3>
       )}
-      <p className="text-xl sm:text-xl lg:text-2xl font-bold text-blue-700 mt-2 text-center sm:text-left">
-        ₹{plan.price}
-        <span className="text-sm sm:text-sm text-gray-500 font-normal"> 
-          /{plan.billingPeriod === 'yearly' ? t('year') : t('month')}
-        </span>
-      </p>
+      <div className="mt-2 text-center sm:text-left">
+        {plan.isLaunchOffer && (
+          <p className="text-sm sm:text-sm text-gray-500 mb-1">
+            <span className="line-through">
+              ₹{plan.billingPeriod === 'yearly' ? plan.originalYearlyPrice : plan.originalMonthlyPrice}
+            </span>
+            <span className="text-xs sm:text-xs text-gray-400 ml-1">
+              /{plan.billingPeriod === 'yearly' ? t('year') : t('month')}
+            </span>
+          </p>
+        )}
+        <p className="text-xl sm:text-xl lg:text-2xl font-bold text-blue-700">
+          ₹{plan.price}
+          <span className="text-sm sm:text-sm text-gray-500 font-normal">
+            /{plan.billingPeriod === 'yearly' ? t('year') : t('month')}
+          </span>
+          {plan.isLaunchOffer && (
+            <span className="text-xs sm:text-xs text-green-600 font-semibold ml-2">
+              (Launch Offer)
+            </span>
+          )}
+        </p>
+      </div>
       
       {/* Show monthly equivalent for yearly billing */}
       {plan.billingPeriod === 'yearly' && plan.price > 0 && (

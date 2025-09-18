@@ -19,6 +19,9 @@ const plans = [
     nameKey: "premiumPlan",
     monthlyPrice: 499,
     yearlyPrice: 4999, // 16.5% discount
+    originalMonthlyPrice: 999,
+    originalYearlyPrice: 5988,
+    isLaunchOffer: true,
     // limitKey: "100 queries/day",
     featureKeys: ["unlimitedAccess", "personalizedTutoring", "examPrepPractice", "priorityAccess", "gradeGoalAligned", "clearStructuredAnswers", "profileBasedPersonalization", "alwaysAvailable", "englishHindi"],
     tierKey: "premium",
