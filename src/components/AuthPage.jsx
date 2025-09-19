@@ -172,11 +172,34 @@ export default function AuthPage() {
   // ✅ JSX render block should follow this...
 
   return (
-    <div className="min-h-screen bg-gradient-to-r from-blue-500 to-blue-600 flex items-center justify-center p-4">
-      <div className="bg-white p-6 rounded-lg shadow-md w-full max-w-sm text-center">
+    <div className="min-h-screen bg-gradient-to-r from-blue-500 to-blue-600 flex">
+      {/* Left Side - Welcome Section */}
+      <div className="hidden lg:flex lg:w-1/2 flex-col justify-center items-center p-8 text-white">
+        <img src="/assets/edgini-white-text.png" alt="EdGini Logo" className="h-28 mb-10" />
 
-        <img src="/assets/edgini-logo.png" alt="EdGini Logo" className="mx-auto h-20 my-4" />
-        <h2 className="text-2xl font-bold mb-4">{t('signInHeading') || 'Learn with EdGini'}</h2>
+        <div className="text-center max-w-md">
+          <h1 className="text-4xl font-bold mb-6">Welcome to EdGini</h1>
+
+          <p className="text-xl mb-4 leading-relaxed">
+            Your Education Genie who answers all your questions anywhere, anytime.
+          </p>
+
+          <p className="text-xl mb-4 leading-relaxed">
+            It's your Personalized AI Tutor – tailored to your grade, goals, and language.
+          </p>
+
+          <p className="text-xl mb-4 leading-relaxed">
+            ✨ Learn smarter, practice better, and achieve more.
+          </p>
+        </div>
+      </div>
+
+      {/* Right Side - Auth Form */}
+      <div className="w-full lg:w-1/2 flex items-center justify-center p-4">
+        <div className="bg-white p-6 rounded-lg shadow-md w-full max-w-sm text-center">
+          {/* Logo - always visible */}
+          <img src="/assets/edgini-logo.png" alt="EdGini Logo" className="mx-auto h-20 my-4" />
+          <h2 className="text-2xl font-bold mb-4">{t('signInHeading') || 'Learn with EdGini'}</h2>
 
           <button
             onClick={handleGoogleLogin}
@@ -228,9 +251,10 @@ export default function AuthPage() {
 
         
 
-<p className="text-xs mt-3">🌍{t('educationTagline') || 'Education for Everyone, Everywhere'}</p>
-<p className="text-xs mt-1">🚀 {t('futureTagline') || "Let's Build Tomorrow, Today"}</p>
+          <p className="text-xs mt-3">🌍{t('educationTagline') || 'Education for Everyone, Everywhere'}</p>
+          <p className="text-xs mt-1">🚀 {t('futureTagline') || "Let's Build Tomorrow, Today"}</p>
 
+        </div>
       </div>
       
       {/* Language Restriction Popup */}

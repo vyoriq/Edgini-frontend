@@ -345,6 +345,74 @@ Add a loading animation with text indicating that "EdGini is doing something... 
 ✅ Disappears automatically when answer is received
 ✅ Enhanced user experience during API processing
 
+## Additional Feature: Enhanced Auth Page with Welcome Section
+
+### Feature Request:
+Add welcome text and EdGini logo to the left side of the Auth page with specific content about EdGini's features.
+
+### Implementation:
+**File Modified**: `src/components/AuthPage.jsx` (lines 174-258)
+
+**Changes Made**:
+1. **Layout Restructure**:
+   - Changed from single centered card to two-column layout
+   - Left side: Welcome section with logo and descriptive text
+   - Right side: Authentication form
+
+2. **Welcome Section Content**:
+   - **Logo**: Larger EdGini logo at top (h-28) with enhanced spacing
+   - **Title**: "Welcome to EdGini" with gradient text effect (text-5xl)
+   - **Enhanced Description**:
+     - "🧞‍♂️ Your Education Genie who answers all your questions anywhere, anytime." (text-2xl)
+     - "🎯 Your Personalized AI Tutor – tailored to your grade, goals, and language." (text-xl)
+   - **Feature Highlights Box**:
+     - Semi-transparent backdrop with "✨ Learn smarter, practice better, and achieve more."
+     - Four key features with icons:
+       - 📚 Instant answers to any question
+       - 🌍 Available in multiple languages
+       - 🎓 Personalized learning experience
+       - ⚡ 24/7 AI-powered education
+   - **Inspirational Quote**: "Where curiosity meets knowledge, and learning never stops!"
+
+3. **Logo Management**:
+   - **Left Section**: Homepage logo (h-28) above welcome text
+   - **Auth Form**: Original logo kept visible on all screen sizes (removed lg:hidden)
+   - **Dual Branding**: Both sections maintain EdGini logo presence
+
+4. **Responsive Design**:
+   - Left welcome section hidden on mobile/tablet (`hidden lg:flex`)
+   - Auth form logo always visible on all screen sizes
+   - Two-column layout only on large screens (`lg:w-1/2`)
+
+**Design Features**:
+- **Typography**: Enhanced hierarchy (text-5xl title, text-2xl, text-xl, text-lg)
+- **Colors**: White text with gradient title effect on blue background
+- **Visual Effects**:
+  - Gradient text for title (from-white to-blue-100)
+  - Semi-transparent feature box with backdrop-blur effect
+  - Enhanced spacing and visual hierarchy
+- **Icons**: Emoji icons throughout for visual appeal and clarity
+- **Layout**: Centered flexbox with enhanced max-width (max-w-lg)
+- **Logo**: Larger homepage logo (h-28) with increased spacing
+
+**Responsive Behavior**:
+- **Desktop (lg+)**: Two-column layout with welcome section visible
+- **Mobile/Tablet**: Single column auth form with logo in form
+- **Seamless Experience**: No functionality loss on any screen size
+
+### Result:
+✅ Enhanced welcome section with larger homepage logo and compelling content
+✅ Auth form maintains logo visibility on all screen sizes (no removal)
+✅ Professional gradient title effect with enhanced typography
+✅ Feature highlights box with four key EdGini benefits
+✅ Emoji icons throughout for visual appeal and clarity
+✅ Semi-transparent backdrop effects for modern design
+✅ Inspirational tagline: "Where curiosity meets knowledge, and learning never stops!"
+✅ Dual logo presence: Homepage logo (left) + Auth form logo (right)
+✅ Enhanced brand presence and stronger value proposition
+✅ Maintains all existing authentication functionality
+✅ Responsive design works perfectly on all devices
+
 **✅ TASK COMPLETED SUCCESSFULLY**
 
 ### Key Benefits Achieved:
