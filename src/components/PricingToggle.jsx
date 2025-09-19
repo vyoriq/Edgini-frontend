@@ -5,12 +5,15 @@ import { useTranslation } from 'react-i18next';
  * PricingToggle component for switching between Monthly and Yearly billing options
  * Displays a toggle switch with smooth animations and a savings badge for yearly option
  * @param {string} billingPeriod - Current billing period ('monthly' or 'yearly')
- * @param {function} onToggle - Callback function when toggle is switched
+ * @param {function} onToggle - Callback function when toggle is switched (null to disable)
  */
 export default function PricingToggle({ billingPeriod, onToggle }) {
   const { t } = useTranslation();
 
+  const isDisabled = !onToggle;
+
   const handleToggle = () => {
+    if (isDisabled) return;
     const newPeriod = billingPeriod === 'monthly' ? 'yearly' : 'monthly';
     onToggle(newPeriod);
   };
@@ -19,9 +22,11 @@ export default function PricingToggle({ billingPeriod, onToggle }) {
     <div className="flex items-center">
       <div className="flex items-center gap-2">
         {/* Monthly Label */}
-        <span 
+        <span
           className={`text-xs sm:text-sm font-medium transition-colors duration-300 ${
-            billingPeriod === 'monthly' ? 'text-blue-600' : 'text-gray-600'
+            isDisabled
+              ? 'text-gray-400'
+              : billingPeriod === 'monthly' ? 'text-blue-600' : 'text-gray-600'
           }`}
         >
           {t('monthly')}
@@ -31,10 +36,17 @@ export default function PricingToggle({ billingPeriod, onToggle }) {
         <div className="relative">
           <button
             onClick={handleToggle}
-            className={`relative w-10 h-5 rounded-full transition-all duration-300 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:ring-offset-1 ${
-              billingPeriod === 'yearly' ? 'bg-blue-600' : 'bg-gray-300'
-            } hover:shadow-md`}
-            aria-label={t('toggleBillingPeriod')}
+            disabled={isDisabled}
+            className={`relative w-10 h-5 rounded-full transition-all duration-300 focus:outline-none ${
+              isDisabled
+                ? 'cursor-not-allowed opacity-50'
+                : 'focus:ring-1 focus:ring-blue-500 focus:ring-offset-1 hover:shadow-md cursor-pointer'
+            } ${
+              billingPeriod === 'yearly'
+                ? isDisabled ? 'bg-gray-400' : 'bg-blue-600'
+                : 'bg-gray-300'
+            }`}
+            aria-label={isDisabled ? t('billingPeriodLocked') : t('toggleBillingPeriod')}
           >
             {/* Toggle Circle */}
             <div
@@ -46,9 +58,11 @@ export default function PricingToggle({ billingPeriod, onToggle }) {
         </div>
 
         {/* Yearly Label */}
-        <span 
+        <span
           className={`text-xs sm:text-sm font-medium transition-colors duration-300 ${
-            billingPeriod === 'yearly' ? 'text-blue-600' : 'text-gray-600'
+            isDisabled
+              ? 'text-gray-400'
+              : billingPeriod === 'yearly' ? 'text-blue-600' : 'text-gray-600'
           }`}
         >
           {t('yearly')}

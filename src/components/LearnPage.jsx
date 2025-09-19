@@ -13,6 +13,7 @@ export default function LearnPage() {
   const [stage, setStage] = useState('explain');       // 👣 AI flow stage
   const [lastAnswer, setLastAnswer] = useState(null);  // 🧠 last user answer
   const [loading, setLoading] = useState(true);
+  const [isThinking, setIsThinking] = useState(false);
   const [language, setLanguage] = useState('en');
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
@@ -136,7 +137,7 @@ export default function LearnPage() {
     setMessages((prev) => [...prev, { type: 'user', content: query }]);
     setChatHistory((prev) => [...prev, userMsg]);
     setQuery('');
-    // setLoading(true);
+    setIsThinking(true);
 
 
     let body = {
@@ -186,7 +187,7 @@ export default function LearnPage() {
         setMessages((prev) => [...prev, { type: 'ai', content: { text: '⚠️ Error fetching response. Please try again.' } }]);
       }
     } finally {
-      setLoading(false);
+      setIsThinking(false);
     }
   };
 
@@ -607,7 +608,33 @@ const renderAIContent = (content) => (
               {msg.type === 'ai' ? renderAIContent(msg.content) : msg.content}
             </div>
           ))}
-          {loading && <div className="text-xs sm:text-sm text-gray-500">🧠 {t("edginiThinking")}</div>}
+          {isThinking && (
+            <div className="p-4 rounded-lg bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 shadow-sm">
+              <div className="flex items-center space-x-3">
+                {/* Animated thinking dots */}
+                <div className="flex space-x-1">
+                  <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce" style={{animationDelay: '0ms'}}></div>
+                  <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce" style={{animationDelay: '150ms'}}></div>
+                  <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce" style={{animationDelay: '300ms'}}></div>
+                </div>
+
+                {/* EdGini thinking text */}
+                <div className="flex-1">
+                  <p className="text-sm sm:text-base font-medium text-blue-800">
+                    🧠 EdGini is thinking...
+                  </p>
+                  {/* <p className="text-xs sm:text-sm text-blue-600 mt-1">
+                    Finding the perfect answer for you
+                  </p> */}
+                </div>
+
+                {/* EdGini logo/icon */}
+                <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+                  <span className="text-blue-600 font-bold text-sm">E</span>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
 
         <form onSubmit={handleSubmit} className="flex items-center gap-1 sm:gap-2">

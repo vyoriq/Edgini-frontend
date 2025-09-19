@@ -11,12 +11,16 @@ import {
 /**
  * UpcomingPlanCard component for displaying upcoming plans with early bird access
  * Shows a split card layout with features and early bird payment option
+ * @param {Object} subscriptionData - User's subscription data containing has_early_bird flag
  */
-export default function UpcomingPlanCard() {
+export default function UpcomingPlanCard({ subscriptionData }) {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const [isProcessing, setIsProcessing] = useState(false);
   const [paymentStatus, setPaymentStatus] = useState('');
+
+  // Check if user has already opted for early bird access
+  const hasEarlyBirdAccess = subscriptionData && subscriptionData.has_early_bird;
 
   /**
    * Handles early bird payment flow with ₹1 payment
@@ -232,35 +236,54 @@ export default function UpcomingPlanCard() {
       {/* Early Bird Access Section */}
       <div className="p-4 sm:p-5 lg:p-6 bg-gradient-to-r from-amber-50 to-orange-50 border-t border-gray-200 mt-auto">
         <div className="text-center">
-          <div className="flex justify-center items-center mb-3 flex-wrap gap-2">
-            <span className="text-xl sm:text-2xl flex-shrink-0">🚀</span>
-            <h5 className="text-sm sm:text-base lg:text-lg font-semibold text-gray-800 text-center leading-tight">{t('earlyBirdOfferText')}</h5>
-          </div>
-          {/* <p className="text-xs sm:text-sm text-gray-600 mb-4 leading-tight">
-            Subscribe for just ₹1 to get early access and special discounts
-          </p> */}
-          
-          {/* Payment Status Display */}
-          {paymentStatus && (
-            <div className="mb-3 text-sm text-blue-600 text-center">
-              {paymentStatus}
-            </div>
+          {hasEarlyBirdAccess ? (
+            // Show success message for users who already have early bird access
+            <>
+              <div className="flex justify-center items-center mb-3 flex-wrap gap-2">
+                <span className="text-xl sm:text-2xl flex-shrink-0">✅</span>
+                <h5 className="text-sm sm:text-base lg:text-lg font-semibold text-green-700 text-center leading-tight">
+                  Early Bird Access Activated!
+                </h5>
+              </div>
+              <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-4">
+                <p className="text-sm sm:text-base text-green-800 leading-relaxed">
+                  You've successfully opted for our Early Bird offer. Please stay tuned for more exciting offers when we launch the above plans.
+                </p>
+              </div>
+              <div className="py-3 px-6 rounded-lg bg-green-100 border border-green-300">
+                <span className="text-sm sm:text-base font-semibold text-green-700">
+                  🎉 Thank you for being an early supporter!
+                </span>
+              </div>
+            </>
+          ) : (
+            // Show early bird access button for users who haven't opted yet
+            <>
+              <div className="flex justify-center items-center mb-3 flex-wrap gap-2">
+                <span className="text-xl sm:text-2xl flex-shrink-0">🚀</span>
+                <h5 className="text-sm sm:text-base lg:text-lg font-semibold text-gray-800 text-center leading-tight">{t('earlyBirdOfferText')}</h5>
+              </div>
+
+              {/* Payment Status Display */}
+              {paymentStatus && (
+                <div className="mb-3 text-sm text-blue-600 text-center">
+                  {paymentStatus}
+                </div>
+              )}
+
+              <button
+                onClick={handleEarlyBirdAccess}
+                disabled={isProcessing}
+                className={`font-semibold py-3 sm:py-3 px-6 sm:px-6 rounded-lg transition-all duration-300 shadow-lg text-base sm:text-base w-full sm:w-auto ${
+                  isProcessing
+                    ? 'bg-gray-300 text-gray-600 cursor-not-allowed'
+                    : 'bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white transform hover:scale-105 hover:shadow-xl'
+                }`}
+              >
+                {isProcessing ? (paymentStatus ? 'Processing...' : 'Please wait...') : t('getEarlyAccess')}
+              </button>
+            </>
           )}
-          
-          <button
-            onClick={handleEarlyBirdAccess}
-            disabled={isProcessing}
-            className={`font-semibold py-3 sm:py-3 px-6 sm:px-6 rounded-lg transition-all duration-300 shadow-lg text-base sm:text-base w-full sm:w-auto ${
-              isProcessing 
-                ? 'bg-gray-300 text-gray-600 cursor-not-allowed' 
-                : 'bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white transform hover:scale-105 hover:shadow-xl'
-            }`}
-          >
-            {isProcessing ? (paymentStatus ? 'Processing...' : 'Please wait...') : t('getEarlyAccess')}
-          </button>
-          {/* <p className="text-xs sm:text-sm text-gray-500 mt-2">
-            Only ₹1 • Secure payment via Razorpay
-          </p> */}
         </div>
       </div>
     </div>
