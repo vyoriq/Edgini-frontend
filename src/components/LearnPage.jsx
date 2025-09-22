@@ -662,7 +662,17 @@ const renderAIContent = (content) => (
               </button>
             )}
           </div>
-          <button type="submit" className="bg-blue-600 text-white px-3 sm:px-4 py-2 sm:py-3 rounded hover:bg-blue-700 text-sm sm:text-base min-w-[60px] sm:min-w-[80px]">{t("send") || "Send"}</button>
+          <button
+            type="submit"
+            disabled={isThinking}
+            className={`px-3 sm:px-4 py-2 sm:py-3 rounded text-sm sm:text-base min-w-[60px] sm:min-w-[80px] transition-all duration-200 ${
+              isThinking
+                ? "bg-gray-400 text-gray-600 cursor-not-allowed"
+                : "bg-blue-600 text-white hover:bg-blue-700"
+            }`}
+          >
+            {isThinking ? t("processing") || "Processing..." : t("send") || "Send"}
+          </button>
         </form>
       </main>
       

@@ -345,6 +345,46 @@ Add a loading animation with text indicating that "EdGini is doing something... 
 ✅ Disappears automatically when answer is received
 ✅ Enhanced user experience during API processing
 
+## Additional Feature: Disabled Send Button During Processing
+
+### Feature Request:
+Disable the send button on the learn page while EdGini is thinking/waiting for the curation API to return the response.
+
+### Implementation:
+**File Modified**: `src/components/LearnPage.jsx` (lines 665-675)
+
+**Changes Made**:
+1. **Button State Management**:
+   - Added `disabled={isThinking}` attribute to send button
+   - Button becomes non-interactive while API request is processing
+
+2. **Dynamic Styling**:
+   - **Active State**: Blue background (`bg-blue-600`) with hover effect (`hover:bg-blue-700`)
+   - **Disabled State**: Gray background (`bg-gray-400`) with gray text (`text-gray-600`)
+   - **Cursor**: Changes to `cursor-not-allowed` when disabled
+   - **Transitions**: Smooth color transitions (`transition-all duration-200`)
+
+3. **Dynamic Button Text**:
+   - **Normal State**: Shows "Send" text
+   - **Processing State**: Shows "Processing..." text
+   - **Internationalization**: Uses translation keys `t("processing")` and `t("send")`
+
+**User Experience Flow**:
+1. User types query and clicks "Send"
+2. Button immediately becomes disabled and shows "Processing..."
+3. Button styling changes to gray to indicate disabled state
+4. EdGini thinking animation appears in chat
+5. When API responds, button re-enables and returns to "Send"
+
+### Result:
+✅ Send button disabled during API processing to prevent duplicate submissions
+✅ Clear visual feedback with gray disabled styling
+✅ Dynamic button text changes from "Send" to "Processing..."
+✅ Smooth transitions between enabled/disabled states
+✅ Prevents user confusion and multiple API calls
+✅ Maintains accessibility with proper disabled state
+✅ Coordinated with EdGini thinking animation for complete UX
+
 ## Additional Feature: Enhanced Auth Page with Welcome Section
 
 ### Feature Request:
