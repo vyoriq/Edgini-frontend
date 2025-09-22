@@ -498,9 +498,9 @@ const renderAIContent = (content) => (
         </div>
       </aside>
 
-      <main className="flex-1 lg:ml-0 p-3 sm:p-4 lg:p-6 pt-12 sm:pt-14 lg:pt-16 flex flex-col bg-white relative">
+      <main className="flex-1 lg:ml-0 p-2 sm:p-4 lg:p-6 pt-10 sm:pt-14 lg:pt-16 flex flex-col bg-white relative">
         {/* Header with hamburger menu and user info */}
-        <div className="absolute top-2 sm:top-3 lg:top-4 left-3 sm:left-4 lg:left-6 right-3 sm:right-4 lg:right-6 flex items-center justify-between lg:justify-end">
+        <div className="absolute top-1 sm:top-3 lg:top-4 left-2 sm:left-4 lg:left-6 right-2 sm:right-4 lg:right-6 flex items-center justify-between lg:justify-end">
           {/* Hamburger Menu - Mobile Only */}
           <button
             onClick={toggleMobileSidebar}
@@ -602,7 +602,7 @@ const renderAIContent = (content) => (
           </div>
         </div>
 
-        <div className="flex-1 overflow-y-auto space-y-2 sm:space-y-4 mb-3 sm:mb-4">
+        <div className="flex-1 overflow-y-auto space-y-2 sm:space-y-4 mb-2 sm:mb-4">
           {messages.map((msg, idx) => (
             <div key={idx} className={`p-2 sm:p-3 rounded shadow-md mb-2 ${msg.type === 'user' ? 'bg-blue-100 text-right' : 'bg-[#0a2b75] text-white text-left'}`}>
               {msg.type === 'ai' ? renderAIContent(msg.content) : msg.content}
@@ -637,7 +637,7 @@ const renderAIContent = (content) => (
           )}
         </div>
 
-        <form onSubmit={handleSubmit} className="flex items-center gap-1 sm:gap-2">
+        <form onSubmit={handleSubmit} className="flex items-center gap-1 sm:gap-2 mb-2 sm:mb-0">
           <div className="flex-1 relative">
             <input 
               type="text" 

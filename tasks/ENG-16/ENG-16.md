@@ -385,6 +385,45 @@ Disable the send button on the learn page while EdGini is thinking/waiting for t
 ✅ Maintains accessibility with proper disabled state
 ✅ Coordinated with EdGini thinking animation for complete UX
 
+## Additional Fix: Mobile Layout Optimization
+
+### Issue Identified:
+On mobile devices, users had to scroll to view the "Ask EdGini" input section, which was not ideal for user experience as the input should be immediately visible.
+
+### Implementation:
+**File Modified**: `src/components/LearnPage.jsx` (lines 501, 503, 605, 640)
+
+**Changes Made**:
+1. **Reduced Main Container Padding**:
+   - Changed from `p-3` to `p-2` on mobile for less side padding
+   - Reduced top padding from `pt-12` to `pt-10` on mobile
+
+2. **Optimized Header Positioning**:
+   - Moved header closer to top: `top-2` to `top-1` on mobile
+   - Reduced left/right margins: `left-3 right-3` to `left-2 right-2` on mobile
+
+3. **Compressed Chat Area Spacing**:
+   - Reduced bottom margin of messages area from `mb-3` to `mb-2` on mobile
+   - Keeps larger spacing on tablet/desktop (`sm:mb-4`)
+
+4. **Form Bottom Margin**:
+   - Added `mb-2` on mobile to ensure input is not cut off at bottom
+   - Removed margin on larger screens (`sm:mb-0`)
+
+**Mobile-Specific Optimizations**:
+- **Main Container**: `p-2 pt-10` (mobile) vs `sm:p-4 sm:pt-14` (tablet+)
+- **Header Position**: `top-1 left-2 right-2` (mobile) vs `sm:top-3 sm:left-4 sm:right-4` (tablet+)
+- **Messages Spacing**: `mb-2` (mobile) vs `sm:mb-4` (tablet+)
+- **Form Margin**: `mb-2` (mobile) vs `sm:mb-0` (tablet+)
+
+### Result:
+✅ Ask EdGini input section now visible without scrolling on mobile
+✅ Optimized spacing specifically for mobile viewport constraints
+✅ Maintains proper spacing and layout on tablet and desktop
+✅ Improved mobile user experience with immediate input access
+✅ No functionality loss, only spacing optimization
+✅ Responsive design maintains quality across all screen sizes
+
 ## Additional Feature: Enhanced Auth Page with Welcome Section
 
 ### Feature Request:
