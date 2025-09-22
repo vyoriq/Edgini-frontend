@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import authenticatedFetch from '../utils/apiClient';
+import ContactFooter from './ContactFooter';
 
 /**
  * OrderDetails Component - Fetches and displays order details from backend
@@ -382,6 +383,9 @@ export default function OrderDetails() {
           </div>
         </div>
       </div>
+
+      {/* Contact Footer */}
+      <ContactFooter />
     </div>
   );
 }
