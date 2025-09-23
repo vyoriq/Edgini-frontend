@@ -209,13 +209,13 @@ export default function AuthPage() {
             {t('continueWithGoogle') || 'Continue with Google'}
           </button>
 
-          <button
+          {/* <button
             onClick={handleFacebookLogin}
             className="flex items-center justify-center gap-2 bg-gradient-to-r from-blue-100 to-blue-200 hover:from-blue-200 hover:to-blue-300 text-[#1877F2] font-medium py-2 rounded-full w-full transition-all duration-200 shadow-sm"
             >
             <FaFacebook className="text-xl text-blue-600" />
             {t('continueWithFacebook') || 'Continue with Facebook'}
-          </button>
+          </button> */}
 
       <input
       type="text"
