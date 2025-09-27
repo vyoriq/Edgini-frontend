@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { useTranslation } from 'react-i18next';
 import authenticatedFetch from '../utils/apiClient';
 import HindiKeyboard from './HindiKeyboard';
+import { useSpeechRecognition } from '../hooks/useSpeechRecognition';
 
 export default function LearnPage() {
   const [userProfile, setUserProfile] = useState(null);
@@ -28,6 +29,17 @@ export default function LearnPage() {
   const sidebarRef = useRef(null);
   const { t, i18n } = useTranslation();
   const navigate = useNavigate();
+
+  // Speech recognition hook
+  const {
+    isSupported: speechSupported,
+    isListening,
+    transcript,
+    error: speechError,
+    hasPermission,
+    toggleListening,
+    resetTranscript
+  } = useSpeechRecognition(language);
 
 
   useEffect(() => {
@@ -76,6 +88,13 @@ export default function LearnPage() {
   useEffect(() => {
     console.log('Query usage state updated:', queryUsage);
   }, [queryUsage]);
+
+  // Handle speech recognition transcript updates
+  useEffect(() => {
+    if (transcript && transcript.trim()) {
+      setQuery(transcript.trim());
+    }
+  }, [transcript]);
 
   useEffect(() => {
     // Close dropdown and sidebar when clicking outside
@@ -458,6 +477,47 @@ const renderAIContent = (content) => (
     return language === 'hi';
   };
 
+  /**
+   * Handles speech recognition toggle
+   * Starts or stops speech recognition based on current state
+   */
+  const handleSpeechToggle = () => {
+    if (!speechSupported) {
+      alert('Speech recognition is not supported in this browser');
+      return;
+    }
+
+    if (isListening) {
+      // If currently listening, stop
+      toggleListening();
+    } else {
+      // If not listening, clear any existing query and start
+      resetTranscript();
+      toggleListening();
+    }
+  };
+
+  /**
+   * Gets the appropriate microphone icon based on speech state
+   * @returns {JSX.Element} Microphone icon component
+   */
+  const getMicrophoneIcon = () => {
+    if (isListening) {
+      return (
+        <svg className="w-4 h-4 sm:w-5 sm:h-5 text-red-600 animate-pulse" fill="currentColor" viewBox="0 0 24 24">
+          <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/>
+          <path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/>
+        </svg>
+      );
+    }
+
+    return (
+      <svg className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"/>
+      </svg>
+    );
+  };
+
   return (
     <div className="flex min-h-screen">
       {/* Mobile Sidebar Overlay */}
@@ -637,6 +697,39 @@ const renderAIContent = (content) => (
           )}
         </div>
 
+        {/* Speech Recognition Feedback */}
+        {(isListening || speechError) && (
+          <div className="fixed bottom-20 sm:bottom-24 lg:bottom-20 left-2 sm:left-4 lg:left-68 right-2 sm:right-4 lg:right-6 z-50">
+            {isListening && (
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-2 shadow-lg">
+                <div className="flex items-center space-x-2">
+                  <div className="w-3 h-3 bg-red-500 rounded-full animate-pulse"></div>
+                  <span className="text-blue-800 text-sm font-medium">
+                    🎤 Listening... Speak your question
+                  </span>
+                </div>
+                {transcript && (
+                  <div className="mt-2 text-sm text-gray-600 italic">
+                    "{transcript}"
+                  </div>
+                )}
+              </div>
+            )}
+            {speechError && !isListening && (
+              <div className="bg-red-50 border border-red-200 rounded-lg p-3 shadow-lg">
+                <div className="flex items-center space-x-2">
+                  <svg className="w-4 h-4 text-red-500" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+                  </svg>
+                  <span className="text-red-800 text-sm font-medium">
+                    {speechError}
+                  </span>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
         <form onSubmit={handleSubmit} className="fixed bottom-0 left-0 right-0 lg:left-64 bg-white border-t border-gray-200 shadow-lg p-2 sm:p-4 lg:p-6 z-40">
           <div className="flex items-center gap-1 sm:gap-2 max-w-full">
           <div className="flex-1 relative">
@@ -648,20 +741,41 @@ const renderAIContent = (content) => (
               className="w-full p-2 sm:p-3 border rounded shadow font-semibold text-blue-900 placeholder-blue-900 text-sm sm:text-base" 
               required 
             />
-            {shouldShowHindiKeyboard() && (
-              <button
-                type="button"
-                onClick={toggleHindiKeyboard}
-                className="absolute right-2 top-1/2 transform -translate-y-1/2 text-blue-600 hover:text-blue-800 focus:outline-none focus:ring-2 focus:ring-blue-500 rounded-md p-1"
-                title="Toggle Hindi Keyboard"
-                aria-label="Toggle Hindi keyboard"
-              >
-                <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
-                </svg>
-                <span className="text-xs font-bold">हि</span>
-              </button>
-            )}
+            <div className="absolute right-2 top-1/2 transform -translate-y-1/2 flex items-center space-x-1">
+              {/* Speech Recognition Button */}
+              {speechSupported && (
+                <button
+                  type="button"
+                  onClick={handleSpeechToggle}
+                  className={`p-1 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors duration-200 ${
+                    isListening
+                      ? 'text-red-600 hover:text-red-800 bg-red-50'
+                      : 'text-blue-600 hover:text-blue-800 hover:bg-blue-50'
+                  }`}
+                  title={isListening ? "Stop listening" : "Start voice input"}
+                  aria-label={isListening ? "Stop voice input" : "Start voice input"}
+                  disabled={!speechSupported}
+                >
+                  {getMicrophoneIcon()}
+                </button>
+              )}
+
+              {/* Hindi Keyboard Button */}
+              {shouldShowHindiKeyboard() && (
+                <button
+                  type="button"
+                  onClick={toggleHindiKeyboard}
+                  className="text-blue-600 hover:text-blue-800 focus:outline-none focus:ring-2 focus:ring-blue-500 rounded-md p-1"
+                  title="Toggle Hindi Keyboard"
+                  aria-label="Toggle Hindi keyboard"
+                >
+                  <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
+                  </svg>
+                  <span className="text-xs font-bold">हि</span>
+                </button>
+              )}
+            </div>
           </div>
           <button
             type="submit"
