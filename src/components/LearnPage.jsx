@@ -664,7 +664,7 @@ const renderAIContent = (content) => (
 
         <div className="flex-1 overflow-y-auto space-y-2 sm:space-y-4 pb-6 sm:pb-8">
           {messages.map((msg, idx) => (
-            <div key={idx} className={`p-2 sm:p-3 rounded shadow-md mb-2 ${msg.type === 'user' ? 'bg-blue-100 text-right' : 'bg-[#0a2b75] text-white text-left'}`}>
+            <div key={idx} className={`p-2 sm:p-3 rounded shadow-md mb-2 ${msg.type === 'user' ? 'bg-blue-100 text-left' : 'bg-[#0a2b75] text-white text-left'}`}>
               {msg.type === 'ai' ? renderAIContent(msg.content) : msg.content}
             </div>
           ))}
