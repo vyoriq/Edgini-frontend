@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next';
 import authenticatedFetch from '../utils/apiClient';
 import HindiKeyboard from './HindiKeyboard';
 import { useSpeechRecognition } from '../hooks/useSpeechRecognition';
+import FileUpload from './FileUpload';
 
 export default function LearnPage() {
   const [userProfile, setUserProfile] = useState(null);
@@ -518,6 +519,30 @@ const renderAIContent = (content) => (
     );
   };
 
+  /**
+   * Handles text extraction from uploaded documents
+   * @param {string} extractedText - Text extracted from document
+   * @param {Object} fileInfo - Information about the processed file
+   */
+  const handleTextExtracted = (extractedText, fileInfo) => {
+    // Set the extracted text as the query
+    setQuery(extractedText);
+
+    // Optional: Add a brief notification about the successful extraction
+    console.log(`Text extracted from ${fileInfo.fileName}:`, {
+      characters: extractedText.length,
+      fileSize: fileInfo.fileSize,
+      fileType: fileInfo.fileType,
+      truncated: fileInfo.truncated
+    });
+
+    // If the text was truncated, you might want to show a notification
+    if (fileInfo.truncated) {
+      // You could add a toast notification here in the future
+      console.warn('Document text was truncated due to length limits');
+    }
+  };
+
   return (
     <div className="flex min-h-screen">
       {/* Mobile Sidebar Overlay */}
@@ -742,6 +767,14 @@ const renderAIContent = (content) => (
               required 
             />
             <div className="absolute right-2 top-1/2 transform -translate-y-1/2 flex items-center space-x-1">
+              {/* File Upload Button */}
+              <div className="relative">
+                <FileUpload
+                  onTextExtracted={handleTextExtracted}
+                  disabled={isThinking}
+                />
+              </div>
+
               {/* Speech Recognition Button */}
               {speechSupported && (
                 <button
