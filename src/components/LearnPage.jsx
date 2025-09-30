@@ -25,8 +25,18 @@ export default function LearnPage() {
   const [isUserDropdownOpen, setIsUserDropdownOpen] = useState(false);
   const [isHindiKeyboardVisible, setIsHindiKeyboardVisible] = useState(false);
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
+
+  // Document Analysis States
+  const [activeTab, setActiveTab] = useState('chat'); // 'chat' | 'document'
+  const [uploadedFile, setUploadedFile] = useState(null);
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [analysisResults, setAnalysisResults] = useState(null);
+  const [showResults, setShowResults] = useState(false);
+  const [uploadError, setUploadError] = useState(null);
+
   const dropdownRef = useRef(null);
   const sidebarRef = useRef(null);
+  const fileInputRef = useRef(null);
   const { t, i18n } = useTranslation();
   const navigate = useNavigate();
 
@@ -498,6 +508,255 @@ const renderAIContent = (content) => (
   };
 
   /**
+   * Handles file selection for document upload
+   * Validates file type and size before accepting
+   * Accepts: PDF, DOC, DOCX files
+   * @param {Event} e - File input change event
+   */
+  const handleFileSelect = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    // Validate file type - accept PDF, DOC, DOCX
+    const validTypes = [
+      'application/pdf',
+      'application/msword',
+      'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+    ];
+    const validExtensions = ['.pdf', '.doc', '.docx'];
+    const fileExtension = file.name.toLowerCase().substring(file.name.lastIndexOf('.'));
+
+    if (!validTypes.includes(file.type) && !validExtensions.includes(fileExtension)) {
+      setUploadError('Please select a valid PDF, DOC, or DOCX file');
+      return;
+    }
+
+    // Validate file size (max 10MB for security)
+    const maxSize = 10 * 1024 * 1024; // 10MB
+    if (file.size > maxSize) {
+      setUploadError('File size must be less than 10MB');
+      return;
+    }
+
+    setUploadedFile(file);
+    setUploadError(null);
+  };
+
+  /**
+   * Handles file removal
+   * Clears uploaded file and resets file input
+   */
+  const handleRemoveFile = () => {
+    setUploadedFile(null);
+    setUploadError(null);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  };
+
+  /**
+   * Handles document upload and analysis
+   * Calls validate-document API endpoint with uploaded file
+   */
+  const handleUploadAndAnalyze = async () => {
+    if (!uploadedFile) return;
+
+    setIsAnalyzing(true);
+    setUploadError(null);
+
+    try {
+      // Create FormData for file upload
+      const formData = new FormData();
+      formData.append('file', uploadedFile);
+
+      // Get access token
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session?.access_token) {
+        throw new Error('Authentication required');
+      }
+
+      // Make API request with multipart/form-data
+      const response = await fetch(`${import.meta.env.VITE_APP_HOST}/validate-document`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${session.access_token}`,
+        },
+        body: formData,
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.detail || `Upload failed: ${response.status}`);
+      }
+
+      const data = await response.json();
+
+      if (data.success) {
+        setAnalysisResults(data);
+        setShowResults(true);
+      } else {
+        throw new Error(data.message || 'Analysis failed');
+      }
+
+    } catch (error) {
+      console.error('Document analysis error:', error);
+      setUploadError(error.message || 'Failed to analyze document. Please try again.');
+    } finally {
+      setIsAnalyzing(false);
+    }
+  };
+
+  /**
+   * Handles reset to upload new document
+   * Clears all document analysis state
+   */
+  const handleUploadNewDocument = () => {
+    setUploadedFile(null);
+    setAnalysisResults(null);
+    setShowResults(false);
+    setUploadError(null);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  };
+
+  /**
+   * Renders analysis results with summary and question cards
+   * @returns {JSX.Element} Results display component
+   */
+  const renderAnalysisResults = () => {
+    if (!analysisResults || !analysisResults.validation_results) return null;
+
+    const results = analysisResults.validation_results;
+    const correctCount = results.filter(r => r.ai_assessment === 'correct').length;
+    const incorrectCount = results.filter(r => r.ai_assessment === 'incorrect').length;
+    const totalCount = results.length;
+    const percentage = totalCount > 0 ? Math.round((correctCount / totalCount) * 100) : 0;
+
+    return (
+      <div className="max-w-4xl mx-auto p-3 sm:p-4 md:p-6 space-y-4 sm:space-y-6">
+        {/* Header with Title and Upload Button */}
+        <div className="flex items-center justify-between mb-4">
+          <div>
+            <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900">
+              Assessment Results
+            </h2>
+            <p className="text-sm sm:text-base text-gray-600 mt-1">
+              {totalCount} questions analyzed
+            </p>
+          </div>
+          <button
+            onClick={handleUploadNewDocument}
+            className="px-3 py-2 sm:px-4 sm:py-2.5 text-sm sm:text-base font-medium rounded-lg text-gray-700 bg-white border border-gray-300 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200 flex items-center gap-2"
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+            </svg>
+            Upload New Document
+          </button>
+        </div>
+
+        {/* Summary Score Boxes */}
+        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+          <div className="grid grid-cols-2 gap-8">
+            {/* Correct Count */}
+            <div className="flex flex-col items-center justify-center border-r border-gray-200">
+              <div className="flex items-center space-x-2 mb-2">
+                <svg className="w-8 h-8 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                </svg>
+                <span className="text-5xl font-bold text-green-500">{correctCount}</span>
+              </div>
+              <p className="text-gray-600 text-base">Correct</p>
+            </div>
+
+            {/* Incorrect Count */}
+            <div className="flex flex-col items-center justify-center">
+              <div className="flex items-center space-x-2 mb-2">
+                <svg className="w-8 h-8 text-red-500" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 9.586 8.707 7.293z" clipRule="evenodd" />
+                </svg>
+                <span className="text-5xl font-bold text-red-500">{incorrectCount}</span>
+              </div>
+              <p className="text-gray-600 text-base">Incorrect</p>
+            </div>
+          </div>
+        </div>
+
+        {/* Question Cards */}
+        <div className="space-y-4">
+          {results.map((result, idx) => (
+            <div
+              key={idx}
+              className={`rounded-lg bg-white shadow-sm border-l-4 p-5 ${
+                result.ai_assessment === 'correct'
+                  ? 'border-l-green-500'
+                  : 'border-l-red-500'
+              }`}
+            >
+              {/* Question Header */}
+              <div className="flex items-start justify-between mb-4">
+                <h3 className="text-lg font-semibold text-gray-900 flex-1">
+                  {result.question}
+                </h3>
+
+                {/* Status Badge */}
+                {result.ai_assessment === 'correct' ? (
+                  <span className="ml-3 px-3 py-1 rounded-full text-sm font-medium flex-shrink-0 flex items-center gap-1 bg-green-500 text-white">
+                    <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                    </svg>
+                    Correct
+                  </span>
+                ) : (
+                  <span className="ml-3 px-3 py-1 rounded-full text-sm font-medium flex-shrink-0 flex items-center gap-1 bg-red-500 text-white">
+                    <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 9.586 8.707 7.293z" clipRule="evenodd" />
+                    </svg>
+                    Incorrect
+                  </span>
+                )}
+              </div>
+
+              {/* Your Answer */}
+              <div className="mb-4">
+                <p className="text-base font-semibold text-gray-600 mb-2">
+                  Your Answer:
+                </p>
+                <p className="text-base text-gray-900">
+                  {result.provided_answer}
+                </p>
+              </div>
+
+              {/* Correct Answer (only for incorrect) */}
+              {result.ai_assessment === 'incorrect' && result.correct_answer && (
+                <div className="mb-4">
+                  <p className="text-base font-semibold text-gray-600 mb-2">
+                    Correct Answer:
+                  </p>
+                  <p className="text-base text-gray-900">
+                    {result.correct_answer}
+                  </p>
+                </div>
+              )}
+
+              {/* AI Explanation */}
+              <div className="bg-gray-50 rounded-lg p-4 mt-4">
+                <p className="text-base font-semibold text-gray-700 mb-2">
+                  Explanation:
+                </p>
+                <p className="text-base text-gray-600 leading-relaxed">
+                  {result.explanation}
+                </p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  };
+
+  /**
    * Gets the appropriate microphone icon based on speech state
    * @returns {JSX.Element} Microphone icon component
    */
@@ -662,40 +921,199 @@ const renderAIContent = (content) => (
           </div>
         </div>
 
-        <div className="flex-1 overflow-y-auto space-y-2 sm:space-y-4 pb-6 sm:pb-8">
-          {messages.map((msg, idx) => (
-            <div key={idx} className={`p-2 sm:p-3 rounded shadow-md mb-2 ${msg.type === 'user' ? 'bg-blue-100 text-left' : 'bg-[#0a2b75] text-white text-left'}`}>
-              {msg.type === 'ai' ? renderAIContent(msg.content) : msg.content}
-            </div>
-          ))}
-          {isThinking && (
-            <div className="p-4 rounded-lg bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 shadow-sm">
-              <div className="flex items-center space-x-3">
-                {/* Animated thinking dots */}
-                <div className="flex space-x-1">
-                  <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce" style={{animationDelay: '0ms'}}></div>
-                  <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce" style={{animationDelay: '150ms'}}></div>
-                  <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce" style={{animationDelay: '300ms'}}></div>
-                </div>
+        {/* Tab Navigation */}
+        <div className="flex items-center space-x-1 sm:space-x-2 mb-3 sm:mb-4 border-b border-gray-200">
+          <button
+            onClick={() => setActiveTab('chat')}
+            className={`px-3 py-2 sm:px-4 sm:py-2.5 text-xs sm:text-sm md:text-base font-medium transition-all duration-200 border-b-2 ${
+              activeTab === 'chat'
+                ? 'border-blue-600 text-blue-600'
+                : 'border-transparent text-gray-600 hover:text-blue-600 hover:border-gray-300'
+            }`}
+          >
+            💬 Chat
+          </button>
+          <button
+            onClick={() => setActiveTab('document')}
+            className={`px-3 py-2 sm:px-4 sm:py-2.5 text-xs sm:text-sm md:text-base font-medium transition-all duration-200 border-b-2 ${
+              activeTab === 'document'
+                ? 'border-blue-600 text-blue-600'
+                : 'border-transparent text-gray-600 hover:text-blue-600 hover:border-gray-300'
+            }`}
+          >
+            📄 Document Analysis
+          </button>
+        </div>
 
-                {/* EdGini thinking text */}
-                <div className="flex-1">
-                  <p className="text-sm sm:text-base font-medium text-blue-800">
-                    🧠 EdGini is thinking...
-                  </p>
-                  {/* <p className="text-xs sm:text-sm text-blue-600 mt-1">
-                    Finding the perfect answer for you
-                  </p> */}
-                </div>
+        {/* Chat Tab Content */}
+        {activeTab === 'chat' && (
+          <div className="flex-1 overflow-y-auto space-y-2 sm:space-y-4 pb-6 sm:pb-8">
+            {messages.map((msg, idx) => (
+              <div key={idx} className={`p-2 sm:p-3 rounded shadow-md mb-2 ${msg.type === 'user' ? 'bg-blue-100 text-left' : 'bg-[#0a2b75] text-white text-left'}`}>
+                {msg.type === 'ai' ? renderAIContent(msg.content) : msg.content}
+              </div>
+            ))}
+            {isThinking && (
+              <div className="p-4 rounded-lg bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 shadow-sm">
+                <div className="flex items-center space-x-3">
+                  {/* Animated thinking dots */}
+                  <div className="flex space-x-1">
+                    <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce" style={{animationDelay: '0ms'}}></div>
+                    <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce" style={{animationDelay: '150ms'}}></div>
+                    <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce" style={{animationDelay: '300ms'}}></div>
+                  </div>
 
-                {/* EdGini logo/icon */}
-                <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
-                  <span className="text-blue-600 font-bold text-sm">E</span>
+                  {/* EdGini thinking text */}
+                  <div className="flex-1">
+                    <p className="text-sm sm:text-base font-medium text-blue-800">
+                      🧠 EdGini is thinking...
+                    </p>
+                    {/* <p className="text-xs sm:text-sm text-blue-600 mt-1">
+                      Finding the perfect answer for you
+                    </p> */}
+                  </div>
+
+                  {/* EdGini logo/icon */}
+                  <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+                    <span className="text-blue-600 font-bold text-sm">E</span>
+                  </div>
                 </div>
               </div>
-            </div>
-          )}
-        </div>
+            )}
+          </div>
+        )}
+
+        {/* Document Analysis Tab Content */}
+        {activeTab === 'document' && (
+          <div className="flex-1 overflow-y-auto pb-6 sm:pb-8">
+            {!showResults ? (
+              /* Upload Interface */
+              <div className="max-w-3xl mx-auto p-3 sm:p-4 md:p-6">
+                <div className="bg-white rounded-lg p-4 sm:p-6 md:p-8 border-2 border-dashed border-gray-300">
+                  <div className="text-center">
+                    <div className="mx-auto h-12 w-12 sm:h-16 sm:w-16 text-blue-600 mb-3 sm:mb-4">
+                      <svg className="w-full h-full" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                      </svg>
+                    </div>
+
+                    <h3 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900 mb-2">
+                      Upload Q&A Document
+                    </h3>
+
+                    <p className="text-sm sm:text-base md:text-lg text-gray-600 mb-4 sm:mb-6">
+                      Upload a document containing questions and answers for AI assessment
+                    </p>
+
+                    {/* File Input */}
+                    <input
+                      ref={fileInputRef}
+                      type="file"
+                      accept=".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+                      onChange={handleFileSelect}
+                      className="hidden"
+                      id="document-upload"
+                    />
+
+                    {!uploadedFile ? (
+                      <div className="space-y-3">
+                        <label
+                          htmlFor="document-upload"
+                          className="flex flex-col items-center px-6 py-8 border-2 border-dashed border-blue-300 rounded-lg cursor-pointer hover:border-blue-400 hover:bg-blue-50 transition-all duration-200"
+                        >
+                          <div className="w-12 h-12 sm:w-16 sm:h-16 bg-blue-100 rounded-full flex items-center justify-center mb-3">
+                            <svg className="w-6 h-6 sm:w-8 sm:h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                            </svg>
+                          </div>
+                          <p className="text-sm sm:text-base font-medium text-gray-700 mb-1">
+                            Click to upload or drag and drop
+                          </p>
+                          <p className="text-xs sm:text-sm text-gray-500">
+                            DOC, DOCX, or PDF (MAX. 10MB)
+                          </p>
+                        </label>
+                      </div>
+                    ) : (
+                      <div className="flex flex-col items-center space-y-4">
+                        {/* Selected File Display */}
+                        <div className="bg-white rounded-lg px-4 py-2.5 border border-gray-300 shadow-sm inline-flex items-center space-x-3 max-w-md">
+                          <svg className="w-5 h-5 text-blue-600 flex-shrink-0" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8l-6-6z" />
+                            <path d="M14 2v6h6M10 13h4m-4 4h4" />
+                          </svg>
+                          <p className="text-sm font-medium text-gray-900 truncate">
+                            {uploadedFile.name}
+                          </p>
+                          <button
+                            onClick={handleRemoveFile}
+                            className="text-gray-400 hover:text-red-600 p-1"
+                            aria-label="Remove file"
+                          >
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                          </button>
+                        </div>
+
+                        {/* Upload & Analyze Button */}
+                        <button
+                          onClick={handleUploadAndAnalyze}
+                          disabled={isAnalyzing}
+                          className={`px-8 py-2.5 text-base font-semibold rounded-lg text-white shadow-sm transition-all duration-200 ${
+                            isAnalyzing
+                              ? 'bg-gray-400 cursor-not-allowed'
+                              : 'bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500'
+                          }`}
+                        >
+                          {isAnalyzing ? (
+                            <span className="flex items-center justify-center">
+                              <svg className="animate-spin h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24">
+                                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                              </svg>
+                              Analyzing...
+                            </span>
+                          ) : (
+                            'Upload & Analyze'
+                          )}
+                        </button>
+                      </div>
+                    )}
+
+                    {/* Error Message */}
+                    {uploadError && (
+                      <div className="mt-3 sm:mt-4 p-3 sm:p-4 bg-red-50 border border-red-200 rounded-lg">
+                        <div className="flex items-center space-x-2">
+                          <svg className="w-4 h-4 sm:w-5 sm:h-5 text-red-600 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                            <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                          </svg>
+                          <p className="text-xs sm:text-sm text-red-800">{uploadError}</p>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* Instructions */}
+                {/* <div className="mt-4 sm:mt-6 rounded-lg p-3 sm:p-4">
+                  <h4 className="text-sm sm:text-sm font-semibold mb-2">
+                    📋 How it works:
+                  </h4>
+                  <ul className="text-xs sm:text-sm space-y-1">
+                    <li>• Upload a document (DOC, DOCX, PDF) with questions and answers</li>
+                    <li>• AI will analyze each answer for correctness</li>
+                    <li>• Get detailed feedback and explanations</li>
+                    <li>• See which answers are correct (✓) or incorrect (✗)</li>
+                  </ul>
+                </div> */}
+              </div>
+            ) : (
+              /* Results Display */
+              renderAnalysisResults()
+            )}
+          </div>
+        )}
 
         {/* Speech Recognition Feedback */}
         {(isListening || speechError) && (
@@ -730,17 +1148,18 @@ const renderAIContent = (content) => (
           </div>
         )}
 
-        <form onSubmit={handleSubmit} className="fixed bottom-0 left-0 right-0 lg:left-64 bg-white border-t border-gray-200 shadow-lg p-2 sm:p-4 lg:p-6 z-40">
-          <div className="flex items-center gap-1 sm:gap-2 max-w-full">
-          <div className="flex-1 relative">
-            <input 
-              type="text" 
-              value={query} 
-              onChange={(e) => setQuery(e.target.value)} 
-              placeholder={t("askEdgini") || "Ask EdGini anything..."}
-              className="w-full p-2 sm:p-3 border rounded shadow font-semibold text-blue-900 placeholder-blue-900 text-sm sm:text-base" 
-              required 
-            />
+        {activeTab === 'chat' && (
+          <form onSubmit={handleSubmit} className="fixed bottom-0 left-0 right-0 lg:left-64 bg-white border-t border-gray-200 shadow-lg p-2 sm:p-4 lg:p-6 z-40">
+            <div className="flex items-center gap-1 sm:gap-2 max-w-full">
+            <div className="flex-1 relative">
+              <input
+                type="text"
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                placeholder={t("askEdgini") || "Ask EdGini anything..."}
+                className="w-full p-2 sm:p-3 border rounded shadow font-semibold text-blue-900 placeholder-blue-900 text-sm sm:text-base"
+                required
+              />
             <div className="absolute right-2 top-1/2 transform -translate-y-1/2 flex items-center space-x-1">
               {/* Speech Recognition Button */}
               {speechSupported && (
@@ -789,7 +1208,8 @@ const renderAIContent = (content) => (
             {isThinking ? t("processing") || "Processing..." : t("send") || "Send"}
           </button>
           </div>
-        </form>
+          </form>
+        )}
       </main>
       
       {/* Upgrade Popup Modal */}
