@@ -2,6 +2,8 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabaseClient';
 import { useTranslation } from 'react-i18next';
+import { IoClose } from 'react-icons/io5';
+import { FiEye, FiEyeOff } from 'react-icons/fi';
 
 const gradeSubjectMap = {
   'k12': ['math', 'physics', 'chemistry', 'biology', 'english', 'history', 'geography', 'coding'],
@@ -35,6 +37,8 @@ export default function OnboardingPage() {
   const [selectedSubjects, setSelectedSubjects] = useState([]);
   const [selectedGoal, setSelectedGoal] = useState('');
   const [accessType, setAccessType] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
 
   useEffect(() => {
@@ -50,10 +54,35 @@ export default function OnboardingPage() {
     setEmail(storedEmail);
   }, []);
 
+  /**
+   * Handles checkbox changes for subject selection
+   * Adds or removes subjects from the selected subjects array
+   */
   const handleCheckboxChange = (subject) => {
     setSelectedSubjects((prev) =>
       prev.includes(subject) ? prev.filter((s) => s !== subject) : [...prev, subject]
     );
+  };
+
+  /**
+   * Handles close button click - navigates user back to auth page
+   */
+  const handleClose = () => {
+    navigate('/auth');
+  };
+
+  /**
+   * Toggles password visibility for the password field
+   */
+  const togglePasswordVisibility = () => {
+    setShowPassword(!showPassword);
+  };
+
+  /**
+   * Toggles password visibility for the confirm password field
+   */
+  const toggleConfirmPasswordVisibility = () => {
+    setShowConfirmPassword(!showConfirmPassword);
   };
 
 
@@ -206,7 +235,14 @@ export default function OnboardingPage() {
 
   return (
     <div className="min-h-screen bg-[#002366] flex items-center justify-center">
-      <div className="bg-white rounded-lg p-6 w-full max-w-xl shadow-lg">
+      <div className="bg-white rounded-lg p-6 w-full max-w-xl shadow-lg relative">
+        <button
+          onClick={handleClose}
+          className="absolute top-4 right-4 text-gray-500 hover:text-gray-700 transition-colors"
+          aria-label="Close"
+        >
+          <IoClose size={28} />
+        </button>
         <div className="flex justify-center mb-4">
           <img src="assets/edgini-logo.png" alt="EdGini" className="h-16" />
         </div>
@@ -230,22 +266,42 @@ export default function OnboardingPage() {
               {userType === 'manual' && (
                 <>
                   <label className="block mb-2">🔒 {t('password') || 'Password'}</label>
-                  <input
-                    type="password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    className="w-full border p-2 mb-4"
-                    required
-                  />
+                  <div className="relative mb-4">
+                    <input
+                      type={showPassword ? "text" : "password"}
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      className="w-full border p-2 pr-10"
+                      required
+                    />
+                    <button
+                      type="button"
+                      onClick={togglePasswordVisibility}
+                      className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                      aria-label={showPassword ? "Hide password" : "Show password"}
+                    >
+                      {showPassword ? <FiEyeOff size={20} /> : <FiEye size={20} />}
+                    </button>
+                  </div>
 
                   <label className="block mb-2"> 🔒 {t('confirmPassword') || 'Confirm Password'}</label>
-                  <input
-                    type="password"
-                    value={confirmPassword}
-                    onChange={(e) => setConfirmPassword(e.target.value)}
-                    className="w-full border p-2 mb-4"
-                    required
-                  />
+                  <div className="relative mb-4">
+                    <input
+                      type={showConfirmPassword ? "text" : "password"}
+                      value={confirmPassword}
+                      onChange={(e) => setConfirmPassword(e.target.value)}
+                      className="w-full border p-2 pr-10"
+                      required
+                    />
+                    <button
+                      type="button"
+                      onClick={toggleConfirmPasswordVisibility}
+                      className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                      aria-label={showConfirmPassword ? "Hide password" : "Show password"}
+                    >
+                      {showConfirmPassword ? <FiEyeOff size={20} /> : <FiEye size={20} />}
+                    </button>
+                  </div>
                 </>
               )}
             </>
