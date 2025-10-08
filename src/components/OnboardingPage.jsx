@@ -244,7 +244,12 @@ export default function OnboardingPage() {
           <IoClose size={28} />
         </button>
         <div className="flex justify-center mb-4">
-          <img src="assets/edgini-logo.png" alt="EdGini" className="h-16" />
+          <img
+            src="assets/edgini-logo.png"
+            alt="EdGini"
+            className="h-16 cursor-pointer hover:opacity-80 transition-opacity"
+            onClick={() => navigate('/')}
+          />
         </div>
         <h3 className="text-center text-md mb-4">🙏 {t('greeting')} {fullName || email || t('learner')}</h3>
 
