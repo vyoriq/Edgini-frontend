@@ -29,5 +29,13 @@
   "continue": "চালিয়ে যান",
   "educationTagline": "সবার জন্য সর্বত্র শিক্ষা",
   "futureTagline": "চলুন আজই ভবিষ্যত গড়ি",
-  "startAsking": "এডজিনিকে জিজ্ঞাসা করুন"
+  "startAsking": "এডজিনিকে জিজ্ঞাসা করুন",
+  "greeting": "হাই",
+  "learner": "শিক্ষার্থী",
+  "goal": "লক্ষ্য",
+  "logout": "লগআউট",
+  "welcomeToEdgini": "এডজিনিতে স্বাগতম!",
+  "whatToLearnToday": "আজ আপনি কী শিখতে চান?",
+  "askEdgini": "এডজিনিকে যেকোনো কিছু জিজ্ঞাসা করুন...",
+  "send": "পাঠান"
 }

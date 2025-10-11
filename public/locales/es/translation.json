@@ -29,5 +29,13 @@
   "continue": "Continuar",
   "educationTagline": "Educación para todos en todas partes",
   "futureTagline": "Construyamos el futuro hoy",
-  "startAsking": "Pregúntale a EdGini"
+  "startAsking": "Pregúntale a EdGini",
+  "greeting": "Hola",
+  "learner": "Estudiante",
+  "goal": "Objetivo",
+  "logout": "Cerrar sesión",
+  "welcomeToEdgini": "¡Bienvenido a EdGini!",
+  "whatToLearnToday": "¿Qué te gustaría aprender hoy?",
+  "askEdgini": "Pregúntale a EdGini cualquier cosa...",
+  "send": "Enviar"
 }

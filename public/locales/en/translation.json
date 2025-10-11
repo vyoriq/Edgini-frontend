@@ -98,6 +98,8 @@
   "learner": "Learner",
   "goal": "Goal",
   "logout": "Logout",
+  "welcomeToEdgini": "Welcome to EdGini!",
+  "whatToLearnToday": "What would you like to learn today?",
   "askEdgini": "Ask EdGini anything...",
   "edginiThinking": "EdGini is thinking",
   "send": "Send",

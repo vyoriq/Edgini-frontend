@@ -438,11 +438,11 @@ const renderAIContent = (content) => (
   };
 
   /**
-   * Gets user display name or email
+   * Gets user display name (prioritizes full name over email)
    */
   const getUserDisplayName = () => {
     if (!userProfile) return 'User';
-    return userProfile.name || userProfile.email || username || 'User';
+    return userProfile.name || userProfile.fullName || username || 'User';
   };
 
   /**
@@ -941,13 +941,25 @@ const renderAIContent = (content) => (
                 : 'border-transparent text-gray-600 hover:text-blue-600 hover:border-gray-300'
             }`}
           >
-            📄 Document Analysis
+            📄 Question & Answer Gini
           </button>
         </div>
 
         {/* Chat Tab Content */}
         {activeTab === 'chat' && (
           <div className="flex-1 overflow-y-auto space-y-2 sm:space-y-4 pb-6 sm:pb-8">
+            {/* Welcome Message */}
+            {messages.length === 0 && (
+              <div className="text-center py-6 sm:py-8 px-4">
+                <h2 className="text-base sm:text-lg md:text-xl font-bold text-blue-900 mb-2">
+                  {t('greeting')} {getUserDisplayName()}, {t('welcomeToEdgini')}
+                </h2>
+                <p className="text-sm sm:text-base text-gray-700">
+                  {t('whatToLearnToday')}
+                </p>
+              </div>
+            )}
+
             {messages.map((msg, idx) => (
               <div key={idx} className={`p-2 sm:p-3 rounded shadow-md mb-2 ${msg.type === 'user' ? 'bg-blue-100 text-left' : 'bg-[#0a2b75] text-white text-left'}`}>
                 {msg.type === 'ai' ? renderAIContent(msg.content) : msg.content}
@@ -1002,7 +1014,7 @@ const renderAIContent = (content) => (
                     </h3>
 
                     <p className="text-sm sm:text-base md:text-lg text-gray-600 mb-4 sm:mb-6">
-                      Upload a document containing questions and answers for AI assessment
+                      Upload a document containing questions and answers for assessment
                     </p>
 
                     {/* File Input */}
