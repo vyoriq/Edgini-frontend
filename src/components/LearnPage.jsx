@@ -1,10 +1,11 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { supabase } from '../lib/supabaseClient';
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { useTranslation } from 'react-i18next';
 import authenticatedFetch from '../utils/apiClient';
 import HindiKeyboard from './HindiKeyboard';
 import { useSpeechRecognition } from '../hooks/useSpeechRecognition';
+import { startNewConversation, continueConversation, getConversations, getConversationDetails, reconstructChatHistory, getLastStage, formatConversationForDisplay } from '../api/conversationApi';
 
 export default function LearnPage() {
   const [userProfile, setUserProfile] = useState(null);
@@ -26,6 +27,12 @@ export default function LearnPage() {
   const [isHindiKeyboardVisible, setIsHindiKeyboardVisible] = useState(false);
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
 
+  // Conversation History States
+  const [conversationId, setConversationId] = useState(null); // Current conversation UUID
+  const [conversations, setConversations] = useState([]); // List of past conversations
+  const [loadingConversations, setLoadingConversations] = useState(false); // Loading state for conversations
+  const [currentTopic, setCurrentTopic] = useState(''); // Current conversation topic
+
   // Document Analysis States
   const [activeTab, setActiveTab] = useState('chat'); // 'chat' | 'document'
   const [uploadedFile, setUploadedFile] = useState(null);
@@ -39,6 +46,7 @@ export default function LearnPage() {
   const fileInputRef = useRef(null);
   const { t, i18n } = useTranslation();
   const navigate = useNavigate();
+  const location = useLocation();
 
   // Speech recognition hook
   const {
@@ -127,6 +135,87 @@ export default function LearnPage() {
     text.replace(/^(what is|define|explain|tell me about)\s+/i, '').split('?')[0].trim();
 
   /**
+   * Fetches recent conversations for sidebar display
+   * Loads last 5 conversations
+   */
+  const fetchRecentConversations = async () => {
+    try {
+      setLoadingConversations(true);
+      const data = await getConversations(1, 5);
+      setConversations(data.conversations || []);
+    } catch (error) {
+      console.error('Failed to fetch conversations:', error);
+      // Don't show error to user, just log it
+    } finally {
+      setLoadingConversations(false);
+    }
+  };
+
+  /**
+   * Starts a new conversation by clearing current state
+   * Resets all conversation-related states
+   */
+  const handleStartNewConversation = () => {
+    setConversationId(null);
+    setMessages([]);
+    setChatHistory([]);
+    setStage('explain');
+    setLastAnswer(null);
+    setCurrentTopic('');
+    console.log('Started new conversation');
+  };
+
+  /**
+   * Resumes a previous conversation
+   * Fetches conversation details and reconstructs chat state
+   * @param {string} convId - Conversation UUID to resume
+   */
+  const handleResumeConversation = async (convId) => {
+    try {
+      setIsThinking(true);
+      console.log('Resuming conversation:', convId);
+
+      // Fetch conversation details
+      const data = await getConversationDetails(convId);
+
+      if (!data || !data.conversation) {
+        throw new Error('Failed to load conversation');
+      }
+
+      // Reconstruct chat history
+      const history = reconstructChatHistory(data.messages || []);
+      const lastStage = getLastStage(data.messages || []);
+
+      // Reconstruct messages for UI display
+      const uiMessages = (data.messages || []).map(msg => ({
+        type: msg.role === 'user' ? 'user' : 'ai',
+        content: msg.role === 'user' ? msg.content : { text: msg.content }
+      }));
+
+      // Update all states
+      setConversationId(convId);
+      setChatHistory(history);
+      setMessages(uiMessages);
+      setStage(lastStage);
+      setCurrentTopic(data.conversation.topic || '');
+
+      console.log('Conversation resumed:', {
+        id: convId,
+        messageCount: uiMessages.length,
+        stage: lastStage
+      });
+
+      // Close mobile sidebar if open
+      setIsMobileSidebarOpen(false);
+    } catch (error) {
+      console.error('Failed to resume conversation:', error);
+      alert('Failed to load conversation. Please try again.');
+    } finally {
+      setIsThinking(false);
+    }
+  };
+
+  /**
    * Fetches user subscription details from backend API
    * Handles authentication and error cases securely
    */
@@ -168,10 +257,15 @@ export default function LearnPage() {
     setQuery('');
     setIsThinking(true);
 
+    // Extract topic from query if this is a new conversation
+    const topic = currentTopic || extractTopicFromQuery(query);
+    if (!currentTopic) {
+      setCurrentTopic(topic);
+    }
 
     let body = {
       user_id: userProfile.userId,
-      topic: extractTopicFromQuery(query),
+      topic: topic,
       class_level: userProfile.gradeLevel,
       proficiency_level: 'beginner',
       learning_goal: userProfile.goals?.[0] || 'curiosity',
@@ -183,12 +277,26 @@ export default function LearnPage() {
       last_answer: stage.includes('validate') ? query : null
     };
 
-
     try {
-      const data = await authenticatedFetch('/curate', {
-        method: 'POST',
-        body: JSON.stringify(body),
-      });
+      let data;
+
+      // Check if we're continuing an existing conversation or starting a new one
+      if (conversationId) {
+        // Continue existing conversation
+        console.log('Continuing conversation:', conversationId);
+        data = await continueConversation(conversationId, body);
+      } else {
+        // Start new conversation
+        console.log('Starting new conversation');
+        data = await startNewConversation(body);
+
+        // Store the new conversation ID
+        if (data.conversation_id) {
+          setConversationId(data.conversation_id);
+          console.log('New conversation ID:', data.conversation_id);
+        }
+      }
+
       const aiReply = data.content.text;
 
       // Update current query usage from curate API response
@@ -204,11 +312,16 @@ export default function LearnPage() {
       setChatHistory((prev) => [...prev, { role: 'assistant', content: aiReply }]);
       setStage(data.next_stage || 'explain');
 
+      // Refresh conversations list after first message
+      if (!conversationId && data.conversation_id) {
+        fetchRecentConversations();
+      }
+
       // reset lastAnswer if not validating anymore
       if (!data.next_stage?.includes('validate')) setLastAnswer(null);
     } catch (err) {
       console.error('Fetch error:', err);
-      
+
       // Handle specific exception message
       if (err.message && err.message.includes('Daily query limit reached')) {
         setShowUpgradePopup(true);
@@ -396,6 +509,24 @@ const renderAIContent = (content) => (
   useEffect(() => {
     setLoading(false);
   }, []);
+
+  // Fetch recent conversations when component mounts
+  useEffect(() => {
+    if (userProfile) {
+      fetchRecentConversations();
+    }
+  }, [userProfile]);
+
+  // Handle resuming conversation from navigation state
+  useEffect(() => {
+    if (location.state?.resumeConversationId) {
+      const conversationId = location.state.resumeConversationId;
+      handleResumeConversation(conversationId);
+
+      // Clear the state to prevent re-triggering on re-render
+      window.history.replaceState({}, document.title);
+    }
+  }, [location]);
 
   if (loading) return <div className="p-4">{t('checkingSubscription')}</div>;
 
@@ -796,7 +927,7 @@ const renderAIContent = (content) => (
       >
         <div>
           <div className="mb-3 sm:mb-4 flex justify-center">
-            <img src="assets/edgini-logo.png" alt="EdGini Logo" 
+            <img src="assets/edgini-logo.png" alt="EdGini Logo"
             className="mx-auto h-10 sm:h-12 lg:h-14 my-2 sm:my-4"
             />
           </div>
@@ -804,12 +935,68 @@ const renderAIContent = (content) => (
           <p className="text-sm sm:text-base text-gray-700 mb-2">{t(`grades.${userProfile?.gradeLevel}`) || 'N/A'}</p>
           <h3 className="font-bold text-base sm:text-lg mb-2">🎯 {t('goal') || "Goal:"} </h3>
           <p className="text-sm sm:text-base text-gray-700 mb-4">{t(userProfile?.goal) || 'N/A'}</p>
-          
+
           {/* Subscription Badge */}
           {renderSubscriptionBadge()}
-          
+
           {/* Query Usage Display */}
           {/* {renderQueryUsage()} */}
+
+          {/* New Conversation Button */}
+          {conversationId && (
+            <button
+              onClick={handleStartNewConversation}
+              className="w-full mb-4 px-3 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors text-sm font-medium"
+            >
+              ✨ New Chat
+            </button>
+          )}
+          
+          {/* Recent Conversations */}
+          <div className="mt-6 mb-4">
+            <div className="flex items-center justify-between mb-3">
+              <h3 className="font-bold text-base sm:text-lg">Recent Chats</h3>
+              <button
+                onClick={() => navigate('/conversation-history')}
+                className="text-lg text-blue-600 hover:text-blue-800"
+              >
+                View All
+              </button>
+            </div>
+
+            {loadingConversations ? (
+              <div className="space-y-2">
+                {[1, 2, 3].map((i) => (
+                  <div key={i} className="h-12 bg-gray-200 rounded animate-pulse"></div>
+                ))}
+              </div>
+            ) : conversations.length === 0 ? (
+              <div className="text-center py-4 text-sm text-gray-500">
+                No conversations yet
+              </div>
+            ) : (
+              <div className="space-y-2">
+                {conversations.slice(0, 5).map((conv) => (
+                  <button
+                    key={conv.id}
+                    onClick={() => handleResumeConversation(conv.id)}
+                    className={`w-full text-left p-2 rounded-md hover:bg-blue-50 transition-colors border ${
+                      conversationId === conv.id
+                        ? 'border-blue-500 bg-blue-50'
+                        : 'border-gray-200 bg-white'
+                    }`}
+                  >
+                    <div className="font-medium text-sm text-gray-900 truncate">
+                      {conv.title || conv.topic}
+                    </div>
+                    <div className="text-xs text-gray-500 mt-1">
+                      {conv.message_count} messages
+                    </div>
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
         <div className="mt-auto text-center text-xs sm:text-sm text-gray-500 pt-4">
           <p>🌍 {t('educationTagline') || "Education for Everyone, Everywhere"}</p>

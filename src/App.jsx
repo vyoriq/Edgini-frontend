@@ -7,6 +7,7 @@ import LearnPage from './components/LearnPage';
 import SubscriptionPage from './components/SubscriptionPage';
 import OrderDetails from './components/OrderDetails';
 import OrderHistory from './components/OrderHistory';
+import ConversationHistory from './components/ConversationHistory';
 
 function App() {
   return (
@@ -20,6 +21,7 @@ function App() {
         <Route path="/auth/callback" element={<AuthCallback />} />
         <Route path="/order-details/:order_id" element={<OrderDetails />} />
         <Route path="/order-history" element={<OrderHistory />} />
+        <Route path="/conversation-history" element={<ConversationHistory />} />
       </Routes>
     </Router>
   );
