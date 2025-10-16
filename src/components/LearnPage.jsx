@@ -931,7 +931,7 @@ const renderAIContent = (content) => (
                 : 'border-transparent text-gray-600 hover:text-blue-600 hover:border-gray-300'
             }`}
           >
-            💬 Chat
+            💬 Learn
           </button>
           <button
             onClick={() => setActiveTab('document')}
