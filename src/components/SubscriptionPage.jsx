@@ -5,7 +5,7 @@ import authenticatedFetch from '../utils/apiClient';
 import PlanCard from "./PlanCard";
 import PricingToggle from "./PricingToggle";
 import UpcomingPlanCard from "./UpcomingPlanCard";
-import ContactFooter from "./ContactFooter";
+import TermsFooter from "./TermsFooter";
 
 const plans = [
   {
@@ -266,8 +266,8 @@ export default function SubscriptionPage() {
         </div>
       </div>
 
-      {/* Contact Footer */}
-      <ContactFooter />
+      {/* Terms Footer */}
+      <TermsFooter />
     </div>
   );
 }

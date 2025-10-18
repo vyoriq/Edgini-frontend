@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabaseClient';
 import { useTranslation } from 'react-i18next';
+import TermsFooter from './TermsFooter';
 
 const gradeSubjectMap = {
   'k12': ['math', 'physics', 'chemistry', 'biology', 'english', 'history', 'geography', 'coding'],
@@ -205,8 +206,9 @@ export default function OnboardingPage() {
 
 
   return (
-    <div className="min-h-screen bg-[#002366] flex items-center justify-center">
-      <div className="bg-white rounded-lg p-6 w-full max-w-xl shadow-lg">
+    <div className="min-h-screen bg-[#002366] flex flex-col">
+      <div className="flex-1 flex items-center justify-center py-8">
+        <div className="bg-white rounded-lg p-6 w-full max-w-xl shadow-lg">
         <div className="flex justify-center mb-4">
           <img src="assets/edgini-logo.png" alt="EdGini" className="h-16" />
         </div>
@@ -330,7 +332,10 @@ export default function OnboardingPage() {
           <p className="text-xs mt-3">🌍 {t('educationTagline') || "Education for Everyone, Everywhere"}</p>
           <p className="text-xs mt-1">🚀 {t('futureTagline') || "Let's Build Tomorrow, Today"}</p>
         </div>
+        </div>
       </div>
+
+      <TermsFooter />
     </div>
   );
 }

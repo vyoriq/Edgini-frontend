@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import authenticatedFetch from '../utils/apiClient';
-import ContactFooter from './ContactFooter';
+import TermsFooter from './TermsFooter';
 
 /**
  * OrderHistory Component - Displays user's order history with pagination and filtering
@@ -243,8 +243,8 @@ export default function OrderHistory() {
         )}
       </div>
 
-      {/* Contact Footer */}
-      <ContactFooter />
+      {/* Terms Footer */}
+      <TermsFooter />
     </div>
   );
 }

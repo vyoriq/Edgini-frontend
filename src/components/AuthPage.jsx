@@ -5,6 +5,7 @@ import { supabase } from '../lib/supabaseClient'; // adjust if needed
 import { FcGoogle } from 'react-icons/fc';
 import { FaFacebook } from 'react-icons/fa';
 import authenticatedFetch from '../utils/apiClient';
+import TermsFooter from './TermsFooter';
 
 export default function AuthPage() {
   const navigate = useNavigate();
@@ -172,9 +173,10 @@ export default function AuthPage() {
   // ✅ JSX render block should follow this...
 
   return (
-    <div className="min-h-screen bg-gradient-to-r from-blue-500 to-blue-600 flex">
-      {/* Left Side - Welcome Section */}
-      <div className="hidden lg:flex lg:w-1/2 flex-col justify-center items-center p-8 text-white">
+    <div className="min-h-screen bg-gradient-to-r from-blue-500 to-blue-600 flex flex-col">
+      <div className="flex-1 flex">
+        {/* Left Side - Welcome Section */}
+        <div className="hidden lg:flex lg:w-1/2 flex-col justify-center items-center p-8 text-white">
         <img src="/assets/EdGini_TM_Logo_Blue_BG_remove.png" alt="EdGini Logo" className="h-28 mb-10" />
 
         <div className="text-center max-w-md">
@@ -257,7 +259,10 @@ export default function AuthPage() {
 
         </div>
       </div>
-      
+      </div>
+
+      <TermsFooter />
+
       {/* Language Restriction Popup */}
       {showLanguagePopup && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">

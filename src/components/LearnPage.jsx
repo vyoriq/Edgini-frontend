@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next';
 import authenticatedFetch from '../utils/apiClient';
 import HindiKeyboard from './HindiKeyboard';
 import { useSpeechRecognition } from '../hooks/useSpeechRecognition';
+import TermsFooterSidebar from './TermsFooterSidebar';
 
 export default function LearnPage() {
   const [userProfile, setUserProfile] = useState(null);
@@ -807,13 +808,14 @@ const renderAIContent = (content) => (
           
           {/* Subscription Badge */}
           {renderSubscriptionBadge()}
-          
+
           {/* Query Usage Display */}
           {/* {renderQueryUsage()} */}
         </div>
-        <div className="mt-auto text-center text-xs sm:text-sm text-gray-500 pt-4">
-          <p>🌍 {t('educationTagline') || "Education for Everyone, Everywhere"}</p>
-          <p>🚀 {t('futureTagline') || "Let's Build Tomorrow, Today"}</p>
+
+        {/* Terms Footer in Sidebar */}
+        <div className="mt-auto">
+          <TermsFooterSidebar />
         </div>
       </aside>
 
