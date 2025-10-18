@@ -6,6 +6,7 @@ import authenticatedFetch from '../utils/apiClient';
 import HindiKeyboard from './HindiKeyboard';
 import { useSpeechRecognition } from '../hooks/useSpeechRecognition';
 import { startNewConversation, continueConversation, getConversations, getConversationDetails, reconstructChatHistory, getLastStage, formatConversationForDisplay } from '../api/conversationApi';
+import TermsFooterSidebar from './TermsFooterSidebar';
 
 export default function LearnPage() {
   const [userProfile, setUserProfile] = useState(null);
@@ -998,9 +999,12 @@ const renderAIContent = (content) => (
             )}
           </div>
         </div>
-        <div className="mt-auto text-center text-xs sm:text-sm text-gray-500 pt-4">
-          <p>🌍 {t('educationTagline') || "Education for Everyone, Everywhere"}</p>
-          <p>🚀 {t('futureTagline') || "Let's Build Tomorrow, Today"}</p>
+        <div className="mt-auto">
+          <div className="text-center text-xs sm:text-sm text-gray-500 pt-4 pb-3">
+            <p>🌍 {t('educationTagline') || "Education for Everyone, Everywhere"}</p>
+            <p>🚀 {t('futureTagline') || "Let's Build Tomorrow, Today"}</p>
+          </div>
+          <TermsFooterSidebar />
         </div>
       </aside>
 
