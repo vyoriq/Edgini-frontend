@@ -3,6 +3,8 @@ import Homepage from './components/Homepage';
 import AuthCallback from './components/AuthCallback'; // ✅ Adjust path if needed
 import AuthPage from './components/AuthPage';
 import OnboardingPage from './components/OnboardingPage';
+import InstituteOnboardingForm from './components/InstituteOnboardingForm';
+import AdminDashboard from './components/AdminDashboard';
 import LearnPage from './components/LearnPage';
 import SubscriptionPage from './components/SubscriptionPage';
 import OrderDetails from './components/OrderDetails';
@@ -17,6 +19,8 @@ function App() {
         <Route path="/subscription" element={< SubscriptionPage />} />
         <Route path="/auth" element={<AuthPage />} />
         <Route path="/onboarding" element={<OnboardingPage />} />
+        <Route path="/institute-onboarding" element={<InstituteOnboardingForm />} />
+        <Route path="/admin-dashboard" element={<AdminDashboard />} />
         <Route path="/learn" element={<LearnPage />} />
         <Route path="/auth/callback" element={<AuthCallback />} />
         <Route path="/order-details/:order_id" element={<OrderDetails />} />

@@ -252,7 +252,15 @@ export default function AuthPage() {
           </button>
         </p>
 
-        
+        <div className="mt-4 pt-4 border-t border-gray-200">
+          <p className="text-sm text-gray-600 mb-2">Are you an Organization Admin?</p>
+          <button
+            onClick={() => navigate('/institute-onboarding')}
+            className="w-full py-2 rounded-full font-semibold text-blue-600 bg-white border-2 border-blue-600 hover:bg-blue-50 transition-all duration-200"
+          >
+            Onboard Institute
+          </button>
+        </div>
 
           <p className="text-xs mt-3">🌍{t('educationTagline') || 'Education for Everyone, Everywhere'}</p>
           <p className="text-xs mt-1">🚀 {t('futureTagline') || "Let's Build Tomorrow, Today"}</p>
