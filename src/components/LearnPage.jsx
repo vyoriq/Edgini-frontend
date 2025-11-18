@@ -85,6 +85,7 @@ export default function LearnPage() {
           if (session) {
             setSubscriptionFetched(true);
             fetchSubscriptionDetails();
+            fetchRecentConversations();
           } else {
             console.error('No session available for API calls');
             // Show alert instead of immediate redirect

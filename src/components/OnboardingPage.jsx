@@ -13,14 +13,6 @@ const gradeSubjectMap = {
   'jobTraining': ['python', 'excel', 'retail', 'spokenEnglish']
 };
 
-const learningGoals = [
-  'gradeAdvancement', 'subjectMastery', 'academicCertifications', 'testExamPreparation',
-  'courseCompletion', 'skillDevelopment', 'careerAdvancement', 'professionalCertification',
-  'jobReadiness', 'industryKnowledge',
-];
-
-const accessTypes = ['personal', 'shared', 'school'];
-
 
 export default function OnboardingPage() {
   const navigate = useNavigate();
@@ -34,8 +26,6 @@ export default function OnboardingPage() {
   const [dob, setDob] = useState('');
   const [selectedGrade, setSelectedGrade] = useState('');
   const [selectedSubjects, setSelectedSubjects] = useState([]);
-  const [selectedGoal, setSelectedGoal] = useState('');
-  const [accessType, setAccessType] = useState('');
 
 
   useEffect(() => {
@@ -103,8 +93,6 @@ export default function OnboardingPage() {
       dob,
       grade_level: selectedGrade,
       subject: selectedSubjects,
-      goal: selectedGoal,
-      access_type: accessType,
     };
 
     const { data: profileData, error: insertError } = await supabase
@@ -176,8 +164,6 @@ export default function OnboardingPage() {
       dob: profileData.dob,
       gradeLevel: profileData.grade_level,
       subject: profileData.subject,
-      goal: profileData.goal,
-      accessType: profileData.access_type,
     };
 
     localStorage.setItem('vyoriqUserProfile', JSON.stringify(camelCaseProfile));
@@ -285,39 +271,6 @@ export default function OnboardingPage() {
                 </label>
               ))}
             </div>
-
-
-          <label className="block mb-2">🎯 {t('learningGoals') || "Learning Goals"}</label>
-            <div className="flex flex-wrap gap-2 mb-4">
-              {learningGoals.map((goalKey) => (
-                <label key={goalKey} className="inline-flex items-center">
-                  <input
-                    type="radio"
-                    name="goal"
-                    value={goalKey}
-                    checked={selectedGoal === goalKey}
-                    onChange={(e) => setSelectedGoal(e.target.value)}
-                    className="mr-1"
-                  />
-                  {t(`goals.${goalKey}`) || goalKey}
-                </label>
-              ))}
-            </div>
-
-          <label className="block mb-2">📱 {t('accessType') || "Access Type"} </label>
-            <select
-              value={accessType}
-              onChange={(e) => setAccessType(e.target.value)}
-              className="w-full border p-2 mb-4"
-              required
-            >
-              <option value="">{t('selectAccessType') || "Select Access Type"}</option>
-              {accessTypes.map((typeKey) => (
-                <option key={typeKey} value={typeKey}>
-                  {t(`accessTypes.${typeKey}`) || typeKey}
-                </option>
-              ))}
-            </select>
 
 
           <button type="submit" 
